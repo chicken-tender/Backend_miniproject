@@ -1,21 +1,27 @@
 package com.kh.Backend_miniproject.vo;
 
+import java.sql.Date;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import java.sql.Date;
 
 @AllArgsConstructor
 @Setter
 @Getter
-public class ReplyVO {
-    private int replyNum;
+public class PostVO {
     private int postNum;
+    private int boardNum;
     private int memberNum;
-    private String replyContent;
+    private String title;
+    private String content;
+    private int viewCount;
+    private int likeCount;
     private Date writeDate;
+    private String imgUrl;
+    private String tag;
     private String nickname;
+    private String boardName;
     private String pfImg;
 
-    public ReplyVO() {}
+    public PostVO() {}
 }

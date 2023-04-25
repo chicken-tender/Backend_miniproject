@@ -7,7 +7,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter
 @Getter
-public class BoardVO {
-    private int boardNum;
-    private String boardName;
+public class LikesVO {
+    private int memberNum;
+    private int postNum;
 }
