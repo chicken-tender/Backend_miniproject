@@ -82,7 +82,7 @@ public class ChattingDAO {
             while(rs.next()) {
                 MembersVO mv = new MembersVO();
                 mv.setPfImg(rs.getString("PF_IMG"));
-                mv.setNickName(rs.getString("NICKNAME"));
+                mv.setNickname(rs.getString("NICKNAME"));
                 list.add(mv);
             }
             Common.close(rs);
@@ -109,7 +109,7 @@ public class ChattingDAO {
             while(rs.next()) {
                 MembersVO mv = new MembersVO();
                 mv.setPfImg(rs.getString("PF_IMG"));
-                mv.setNickName(rs.getString("NICKNAME"));
+                mv.setNickname(rs.getString("NICKNAME"));
                 list.add(mv);
             }
             Common.close(rs);

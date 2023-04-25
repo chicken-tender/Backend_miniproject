@@ -10,10 +10,11 @@ public class MembersVO {
     private int gradeNum;
     private String email;
     private String pwd;
-    private String nickName;
+    private String nickname;
     private String job;
     private int year;
     private Date regDate;
     private String pfImg;
-    private String isWithDrawn;
+    private String isWithdrawn;
 }
+
