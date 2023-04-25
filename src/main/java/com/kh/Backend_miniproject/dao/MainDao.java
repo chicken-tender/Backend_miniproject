@@ -35,7 +35,7 @@ public class MainDao {
                 int count = rs.getInt("c");
 
                 TopWriterVO vo = new TopWriterVO();
-                vo.setNickName(nickName);
+                vo.setNickname(nickName);
                 vo.setPfImg(pfImg);
                 vo.setCount(count);
                 list.add(vo);
@@ -162,7 +162,7 @@ public class MainDao {
     }
 
     // ✨정보공유 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
-    public List<PostInfoVO> getLatestInfoSharingPosts() {
+    public List<PostInfoVO> getLatestInformationPosts() {
         List<PostInfoVO> list = new ArrayList<>();
         String sql = "SELECT P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.COMMENT_COUNT " +
                 "FROM ( " +
@@ -183,7 +183,7 @@ public class MainDao {
             while(rs.next()) {
                 PostInfoVO pv = new PostInfoVO();
                 pv.setTitle(rs.getString("TITLE"));
-                pv.setNickName(rs.getString("NICKNAME"));
+                pv.setNickname(rs.getString("NICKNAME"));
                 pv.setPfImg(rs.getString("PF_IMG"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
                 pv.setCommentCount(rs.getInt("COMMENT_COUNT"));
@@ -222,7 +222,7 @@ public class MainDao {
             while(rs.next()) {
                 PostInfoVO pv = new PostInfoVO();
                 pv.setTitle(rs.getString("TITLE"));
-                pv.setNickName(rs.getString("NICKNAME"));
+                pv.setNickname(rs.getString("NICKNAME"));
                 pv.setPfImg(rs.getString("PF_IMG"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
                 pv.setCommentCount(rs.getInt("COMMENT_COUNT"));
@@ -261,7 +261,7 @@ public class MainDao {
             while(rs.next()) {
                 PostInfoVO pv = new PostInfoVO();
                 pv.setTitle(rs.getString("TITLE"));
-                pv.setNickName(rs.getString("NICKNAME"));
+                pv.setNickname(rs.getString("NICKNAME"));
                 pv.setPfImg(rs.getString("PF_IMG"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
                 pv.setCommentCount(rs.getInt("COMMENT_COUNT"));
@@ -299,7 +299,7 @@ public class MainDao {
             while(rs.next()) {
                 PostInfoVO pv = new PostInfoVO();
                 pv.setTitle(rs.getString("TITLE"));
-                pv.setNickName(rs.getString("NICKNAME"));
+                pv.setNickname(rs.getString("NICKNAME"));
                 pv.setPfImg(rs.getString("PF_IMG"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
                 pv.setCommentCount(rs.getInt("COMMENT_COUNT"));
@@ -316,7 +316,7 @@ public class MainDao {
         return list;
     }
 
-    // ✨유저 프로필 사진 get
+    // ✨회원 프로필 사진 get
     public String getProfileImageByEmail(String email) {
         String profileImage = null;
         String sql = "SELECT PF_IMG FROM MEMBERS_TB WHERE EMAIL = ?";

@@ -6,6 +6,6 @@ import lombok.Setter;
 @Setter
 public class TopWriterVO {
     private String pfImg;
-    private String nickName;
+    private String nickname;
     private int count;
 }

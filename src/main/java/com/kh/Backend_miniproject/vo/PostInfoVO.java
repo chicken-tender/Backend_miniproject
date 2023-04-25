@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class PostInfoVO {
     private String title;
-    private String nickName;
+    private String nickname;
     private String pfImg;
     private int viewCount;
     private int commentCount;
