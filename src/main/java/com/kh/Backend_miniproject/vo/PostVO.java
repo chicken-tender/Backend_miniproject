@@ -24,4 +24,6 @@ public class PostVO {
     private String pfImg;
 
     public PostVO() {}
+
+
 }
