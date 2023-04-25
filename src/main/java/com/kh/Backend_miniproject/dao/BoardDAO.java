@@ -19,7 +19,8 @@ public class BoardDAO {
 
 
     // ✨일반 게시판 글 목록 (한 페이지당 10개씩)
-    public List<PostVO> generalPostList(int pageNum, int boardNum) {
+
+    public List<PostVO> generalPostList(int boardNum, int pageNum) {
         int numPerPage = 10; // 페이지 당 보여주는 항목 개수
         List<PostVO> list = new ArrayList<>();
         int startRow = (pageNum - 1) * numPerPage + 1;
@@ -129,9 +130,8 @@ public class BoardDAO {
         return list;
     }
 
-
     // ✨해당 게시판 게시글 검색
-    public List<PostVO> searchPosts(String keyword, int pageNum, int boardNum) {
+    public List<PostVO> searchPosts(int boardNum, int pageNum, String keyword) {
         int numPerPage = 10;
         List<PostVO> result = new ArrayList<>();
         int startRow = (pageNum - 1) * numPerPage + 1;
@@ -141,7 +141,7 @@ public class BoardDAO {
 
         String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.VIEW_COUNT, P.LIKE_COUNT, P.WRITE_DATE " +
                 "FROM ( " +
-                "  SELECT POST_NUM_PK, TITLE, CONTENT, TAG, MEMBER_NUM_FK, BOARD_NUM_FK, WRITE_DATE, MODIFY_DATE, VIEW_COUNT, LIKE_COUNT, " +
+                "  SELECT POST_NUM_PK, TITLE, CONTENT, TAG, MEMBER_NUM_FK, BOARD_NUM_FK, WRITE_DATE, VIEW_COUNT, LIKE_COUNT, " +
                 "         ROW_NUMBER() OVER (ORDER BY POST_NUM_PK DESC) AS RNUM " +
                 "  FROM POST_TB " +
                 "  WHERE BOARD_NUM_FK = ? AND (TITLE LIKE ? OR CONTENT LIKE ? OR TAG LIKE ?) " +
@@ -154,10 +154,13 @@ public class BoardDAO {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
 
-            pstmt.setString(1, "%" + keyword + "%");
+            pstmt.setInt(1, boardNum);
             pstmt.setString(2, "%" + keyword + "%");
             pstmt.setString(3, "%" + keyword + "%");
-            pstmt.setInt(4, boardNum);
+            pstmt.setString(4, "%" + keyword + "%");
+            pstmt.setInt(5, startRow);
+            pstmt.setInt(6, endRow);
+
 
             rs = pstmt.executeQuery();
 
@@ -182,7 +185,6 @@ public class BoardDAO {
         }
         return list;
     }
-
 
     // ✨상세글 보기 (게시판 이름, 제목, 프로필사진, 작성자닉네임, 내용, 태그, 이미지, 작성날짜, 조회수, 추천수)
     public List<PostVO> viewPostDetail(int boardNum, int postNum) {
@@ -436,8 +438,8 @@ public class BoardDAO {
 
     // ✨댓글 작성
     public void insertReply(int postNum, int memberNum, String content) {
-        String sql = "INSERT INTO REPLY_TB (POST_NUM_FK, MEMBER_NUM_FK, REPLY_CONTENT, WRITE_DATE) " +
-                "VALUES (?, ?, ?, SYSDATE)";
+            String sql = "INSERT INTO REPLY_TB (POST_NUM_FK, MEMBER_NUM_FK, REPLY_CONTENT, WRITE_DATE) " +
+                    "VALUES (?, ?, ?, SYSDATE)";
 
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -502,37 +504,34 @@ public class BoardDAO {
 
     }
 
-    // ✨게시판 이름(목록) 표시
-    public List<BoardVO> boardList() {
+    // 게시글 번호 get
+    public List<BoardVO> getBoardNum(String boardName) {
         Connection conn = null;
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<BoardVO> boardList = new ArrayList<>();
 
         try {
             conn = Common.getConnection();
-            stmt = conn.createStatement();
-            String sql = "SELECT BOARD_NAME FROM BOARD_TB";
-            rs = stmt.executeQuery(sql);
+            String sql = "SELECT BOARD_NUM_PK FROM BOARD_TB WHERE LOWER(BOARD_NAME) = LOWER(?)";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, boardName.toLowerCase());
+            rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                String boardName = rs.getString("BOARD_NAME");
+                int boardNum = rs.getInt("BOARD_NUM_PK");
 
-                BoardVO vo = new BoardVO(boardName);
+                BoardVO vo = new BoardVO(boardNum, boardName);
                 boardList.add(vo);
             }
-            Common.close(rs);
-            Common.close(stmt);
-            Common.close(conn);
-
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
         }
+
         return boardList;
-
     }
-
-
 }
-
-
