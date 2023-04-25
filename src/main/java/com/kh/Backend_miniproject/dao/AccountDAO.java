@@ -41,7 +41,7 @@ public class AccountDAO {
         return false;
     }
 
-    //  📍 (마이페이지) 회원정보 조회
+    // 🔑 마이페이지: 회원정보 조회 (등급아이콘, 총 게시글 수, 총 댓글 수)
     public List<MyPageVO> getMemberInfoByNum(int memberNum) {
         List<MyPageVO> list = new ArrayList<>();
         try {
@@ -87,19 +87,19 @@ public class AccountDAO {
         }
         return list;
     }
+
     // 🔑(마이페이지) 회원 기술 스택
-    public List<TechStackVO> getMemberTechStackByNumber(int memberNum) {
+    public List<TechStackVO> getMemberTechStackByNum(int memberNum) {
         List<TechStackVO> list = new ArrayList<>();
 
         String sql = "SELECT ts.STACK_ICON_URL" +
                 " FROM MEMBER_TS_TB mts JOIN TECH_STACK_TB ts" +
                 " ON ts.STACK_NUM_PK = mts.STACK_NUM_FK" +
-                " WHERE MEMBER_NUM_FK = ?";
+                " WHERE MEMBER_NUM_FK = " + memberNum;
 
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, memberNum);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -128,14 +128,13 @@ public class AccountDAO {
                 " FROM POST_TB p " +
                 " JOIN BOARD_TB b ON p.BOARD_NUM_FK = b.BOARD_NUM_PK " +
                 " JOIN MEMBERS_TB m ON p.MEMBER_NUM_FK = m.MEMBER_NUM_PK " +
-                " WHERE m.MEMBER_NUM_PK = ? " +
+                " WHERE m.MEMBER_NUM_PK = " + memberNum +
                 " ORDER BY p.WRITE_DATE DESC) " +
                 " WHERE ROWNUM <=5";
 
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, memberNum);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -167,7 +166,7 @@ public class AccountDAO {
                 " JOIN POST_TB p ON r.POST_NUM_FK = p.POST_NUM_PK" +
                 " JOIN BOARD_TB b ON p.BOARD_NUM_FK = b.BOARD_NUM_PK" +
                 " JOIN MEMBERS_TB m ON p.MEMBER_NUM_FK = m.MEMBER_NUM_PK" +
-                " WHERE m.MEMBER_NUM_PK = ?" +
+                " WHERE m.MEMBER_NUM_PK = " + memberNum +
                 " ORDER BY p.WRITE_DATE DESC" +
                 ")" +
                 " WHERE ROWNUM <=5";
@@ -175,7 +174,7 @@ public class AccountDAO {
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, memberNum);
+//            pstmt.setInt(1, memberNum);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -196,18 +195,18 @@ public class AccountDAO {
         return list;
     }
 
-    // 🔒(마이페이지) 회원정보 기본 (프로필사진, 가입일, 닉네임, 이메일, 직업, 연차)
+    // ❌(마이페이지) 회원정보 기본 (프로필사진, 가입일, 닉네임, 이메일, 직업, 연차)
     public List<MembersVO> getMemberInfoBasicByNumber(int memberNum) {
         List<MembersVO> list = new ArrayList<>();
 
         String sql = "SELECT m.PF_IMG, m.REG_DATE, m.NICKNAME, m.EMAIL, m.JOB, m.YEAR" +
                 " FROM MEMBERS_TB m" +
                 " JOIN GRADE_TB g ON m.GRADE_NUM_FK = g.GRADE_NUM_PK" +
-                " WHERE m.MEMBER_NUM_PK = ?";
+                " WHERE m.MEMBER_NUM_PK = " + memberNum;
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, memberNum);
+//            pstmt.setInt(1, memberNum);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
