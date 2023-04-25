@@ -339,9 +339,9 @@ public class MainDao {
         return profileImage;
     }
 
-    // ✨유저 닉네임 get
+    // ✨회원 닉네임 get
     public String getNickNameByEmail(String email) {
-        String nickName = null;
+        String nickname = null;
         String sql = "SELECT NICKNAME FROM MEMBERS_TB WHERE EMAIL = ?";
 
         try {
@@ -351,7 +351,7 @@ public class MainDao {
             rs = pstmt.executeQuery();
 
             while(rs.next()) {
-                nickName = rs.getString("NICKNAME");
+                nickname = rs.getString("NICKNAME");
             }
             Common.close(rs);
             Common.close(pstmt);
@@ -360,6 +360,6 @@ public class MainDao {
         } catch(Exception e) {
             e.printStackTrace();
         }
-        return nickName;
+        return nickname;
     }
 }

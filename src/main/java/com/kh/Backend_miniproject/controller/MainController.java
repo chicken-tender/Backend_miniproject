@@ -1,17 +1,15 @@
 package com.kh.Backend_miniproject.controller;
+import com.kh.Backend_miniproject.dao.AccountDAO;
 import com.kh.Backend_miniproject.dao.MainDao;
 import com.kh.Backend_miniproject.vo.MembersVO;
 import com.kh.Backend_miniproject.vo.PostInfoVO;
 import com.kh.Backend_miniproject.vo.TopWriterVO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -99,11 +97,29 @@ public class MainController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    // 🏓회원 프로필 사진 요청에 따른 응답
-//    @GetMapping("/member/pfImg/{email}")
-//    public ResponseEntity<String> fetchProfileImage(@PathVariable("email") String email) {
-//
-//    }
+    // ⚠️회원 프로필 사진 요청에 따른 응답(확인 필요)
+    @PostMapping("/member/pfImg")
+    public ResponseEntity<String> fetchProfileImage(@RequestBody Map<String, String> emailData) {
+        String email = emailData.get("email");
+        MainDao mdao = new MainDao();
+        String pfImg = mdao.getProfileImageByEmail(email);
 
+        if (pfImg == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(pfImg, HttpStatus.OK);
+    }
 
+    // ⚠️회원 닉네임 요청에 따른 응답(확인 필요)
+    @PostMapping("/member/nickname")
+    public ResponseEntity<String> fetchNickname(@RequestBody Map<String, String> emailData) {
+        String email = emailData.get("email");
+        MainDao mdao = new MainDao();
+        String nickname = mdao.getNickNameByEmail(email);
+
+        if (nickname == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(nickname, HttpStatus.OK);
+    }
 }
