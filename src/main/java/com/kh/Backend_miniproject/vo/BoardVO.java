@@ -10,4 +10,8 @@ import lombok.Setter;
 public class BoardVO {
     private int boardNum;
     private String boardName;
+
+    public BoardVO(String boardName) {
+        this.boardName = boardName;
+    }
 }
