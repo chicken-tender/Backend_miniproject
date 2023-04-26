@@ -41,6 +41,7 @@ public class BoardController {
     }
 
 
+
     // 포토폴리오게시판 목록 조회
     @GetMapping("/Portfolio/{pageNum}")
     public ResponseEntity<List<PostVO>> fetchPortfolioList(@PathVariable("pageNum") int pageNum) {

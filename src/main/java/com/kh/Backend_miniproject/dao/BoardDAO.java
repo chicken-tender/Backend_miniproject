@@ -399,7 +399,6 @@ public class BoardDAO {
                 "FROM REPLY_TB R " +
                 "JOIN MEMBERS_TB M ON R.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
                 "WHERE R.POST_NUM_FK = ?" +
-                "AND R.REPLY_NUM_PK BETWEEN ? AND ? " +
                 "ORDER BY R.REPLY_NUM_PK ASC";
 
         List<ReplyVO> list = new ArrayList<>();
