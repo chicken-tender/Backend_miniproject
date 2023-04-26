@@ -59,24 +59,14 @@ public class BoardController {
 
 
     // 게시판 검색
-    @GetMapping("/board/{boardNum}/search/{pageNum}/{keyword}")
-    public ResponseEntity<List<PostVO>> fetchSearchPosts(@PathVariable("boardNum") int boardNum, @PathVariable("pageNum") int pageNum, @PathVariable("keyword") String keyword) {
+    @GetMapping("/board/search")
+    public ResponseEntity<List<PostVO>> fetchSearchPosts(@RequestParam("boardNum") int boardNum, @RequestParam("pageNum") int pageNum, @RequestParam("keyword") String keyword) {
         BoardDAO dao = new BoardDAO();
         List<PostVO> list = dao.searchPosts(boardNum, pageNum, keyword);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-
-    // 게시글 작성
-    @PostMapping("/write")
-    public ResponseEntity<String> fetchWritePost(@RequestBody PostVO post) {
-        BoardDAO dao = new BoardDAO();
-        dao.writePost(post);
-        return new ResponseEntity<>("True", HttpStatus.OK);
-    }
-
-
-    // 상세글 보기
+        // 상세글 보기
     @GetMapping("/{boardName}/post/{postNum}")
     public ResponseEntity<List<PostVO>> fetchViewPostDetail(@PathVariable("boardName") String boardName, @PathVariable("postNum") int postNum) {
         BoardDAO dao = new BoardDAO();
@@ -90,17 +80,43 @@ public class BoardController {
     }
 
     // 댓글 상세보기
-    @GetMapping("/post/{postNum}/reply/{startIndex}/{endIndex}")
-    public ResponseEntity<List<ReplyVO>> fetchViewReply( @PathVariable("postNum") int postNum, @PathVariable("startIndex") int startIndex, @PathVariable("endIndex") int endIndex) {
+    @GetMapping("/post/{postNum}/reply")
+    public ResponseEntity<List<ReplyVO>> fetchViewReply(@PathVariable("postNum") int postNum) {
         BoardDAO dao = new BoardDAO();
-        List<ReplyVO> replies = dao.viewReply(postNum, startIndex, endIndex);
+        List<ReplyVO> replies = dao.viewReply(postNum);
         if (replies.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(replies, HttpStatus.OK);
-
     }
-    // 댓글 작성
 
+
+    // 조회수 증가
+    @GetMapping("/post/{postNum}/increaseViews")
+    public ResponseEntity<String> fetchIncreaseViews(@PathVariable int postNum) {
+        BoardDAO dao = new BoardDAO();
+        int result = dao.increaseViews(postNum);
+        if (result > 0) {
+            return new ResponseEntity<>("true", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("false", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // 게시글 작성
+    @PostMapping("/write")
+    public ResponseEntity<String> fetchWritePost(@RequestBody PostVO post) {
+        BoardDAO dao = new BoardDAO();
+        dao.writePost(post);
+        return new ResponseEntity<>("True", HttpStatus.OK);
+    }
+
+    // 댓글 작성
+    @PostMapping("/writeReply")
+    public ResponseEntity<String> fetchWriteReply(@RequestParam("postNum") int postNum, @RequestParam("memberNum") int memberNum, @RequestParam("content") String content) {
+        BoardDAO dao = new BoardDAO();
+        dao.writeReply(postNum, memberNum, content);
+        return new ResponseEntity<>("True", HttpStatus.OK);
+    }
 }
 

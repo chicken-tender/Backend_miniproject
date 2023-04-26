@@ -18,4 +18,12 @@ public class ReplyVO {
     private String pfImg;
 
     public ReplyVO() {}
+
+    public ReplyVO(int replyNum, int postNum, int memberNum, String replyContent, Date writeDate) {
+        this.replyNum = replyNum;
+        this.postNum = postNum;
+        this.memberNum = memberNum;
+        this.replyContent = replyContent;
+        this.writeDate = writeDate;
+    }
 }
