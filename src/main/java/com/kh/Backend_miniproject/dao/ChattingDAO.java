@@ -49,53 +49,8 @@ public class ChattingDAO {
         return mentorMemberNum;
     }
 
-    // ✨멘토 멘티 매칭 후 생성된 채팅방 저장
-    public void createChatRoom(int mentorMemberNumber, int menteeMemberNumber) {
-        String sql = "INSERT INTO CHAT_ROOM_TB (CHAT_NUM_PK, MENTOR_FK, MENTEE_FK) " +
-                "VALUES (seq_CHAT_NUM.NEXTVAL, ?, ?)";
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, mentorMemberNumber);
-            pstmt.setInt(2, menteeMemberNumber);
-            pstmt.executeUpdate();
-
-            Common.close(pstmt);
-            Common.close(conn);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // ✨매칭 성공시 멘티 프로필 사진, 닉네임 get
-    public List<MembersVO> getMenteeProfileByEmail(String email) {
-        List<MembersVO> list = new ArrayList<>();
-        String sql = "SELECT PF_IMG, NICKNAME " +
-                "FROM MEMBERS_TB " +
-                "WHERE EMAIL = ?";
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, email);
-            rs = pstmt.executeQuery();
-
-            while(rs.next()) {
-                MembersVO mv = new MembersVO();
-                mv.setPfImg(rs.getString("PF_IMG"));
-                mv.setNickname(rs.getString("NICKNAME"));
-                list.add(mv);
-            }
-            Common.close(rs);
-            Common.close(pstmt);
-            Common.close(conn);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
     // ✨매칭 성공시 멘토 프로필 사진, 닉네임 get
-    public List<MembersVO> getMentorProfileByMemberNum(int mentorMemberNum) {
+    public List<MembersVO> getMentorInfoByMemberNum(int mentorMemberNum) {
         List<MembersVO> list = new ArrayList<>();
         String sql = "SELECT PF_IMG, NICKNAME " +
                 "FROM MEMBERS_TB " +
@@ -121,18 +76,66 @@ public class ChattingDAO {
         return list;
     }
 
-    // ✨채팅 메시지 저장
-    public void saveChatMessage(int chatRoomId, int senderId, String message, String codeBlock, String msgType) {
-        String sql = "INSERT INTO CHAT_MESSAGES_TB (MSG_NUM_PK, CHAT_NUM_FK, SENDER_ID_FK, MESSAGE, CODE_BLOCK, MSG_TYPE) " +
-                "VALUES (CHAT_MESSAGES_SEQ.NEXTVAL, ?, ?, ?, ?, ?)";
+    // ✨매칭 성공시 멘티 프로필 사진, 닉네임 get
+    public List<MembersVO> getMenteeInfoByEmail(String email) {
+        List<MembersVO> list = new ArrayList<>();
+        String sql = "SELECT PF_IMG, NICKNAME " +
+                "FROM MEMBERS_TB " +
+                "WHERE EMAIL = ?";
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, chatRoomId);
+            pstmt.setString(1, email);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                MembersVO mv = new MembersVO();
+                mv.setPfImg(rs.getString("PF_IMG"));
+                mv.setNickname(rs.getString("NICKNAME"));
+                list.add(mv);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ✨멘토 멘티 매칭 후 생성된 채팅방 저장
+    public boolean createChatRoom(int mentorMemberNumber, int menteeMemberNumber) {
+        int result = 0;
+        String sql = "INSERT INTO CHAT_ROOM_TB (CHAT_NUM_PK, MENTOR_FK, MENTEE_FK) " +
+                "VALUES (seq_CHAT_NUM.NEXTVAL, ?, ?)";
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, mentorMemberNumber);
+            pstmt.setInt(2, menteeMemberNumber);
+            result = pstmt.executeUpdate();
+
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        if(result == 1) return true;
+        else return false;
+    }
+
+    // ✨채팅 메시지 저장
+    public void saveChatMessage(int chatNum, int senderId, String message, String codeBlock, int msgType) {
+        String sql = "INSERT INTO CHAT_MESSAGES_TB (MSG_NUM_PK, CHAT_NUM_FK, SENDER_ID_FK, MESSAGE, CODE_BLOCK, MSG_TYPE) " +
+                "VALUES (seq_CHAT_MSG_NUM.NEXTVAL, ?, ?, ?, ?, ?)";
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, chatNum);
             pstmt.setInt(2, senderId);
             pstmt.setString(3, message);
             pstmt.setString(4, codeBlock);
-            pstmt.setString(5, msgType);
+            pstmt.setInt(5, msgType);
             pstmt.executeUpdate();
 
             Common.close(pstmt);
@@ -144,12 +147,12 @@ public class ChattingDAO {
     }
 
     // ✨대화 종료시 대화방 삭제
-    public void deleteChatRoom(int chatRoomId) {
+    public void deleteChatRoom(int chatNum) {
         String sql = "DELETE FROM CHAT_ROOM_TB WHERE CHAT_NUM_PK = ?";
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, chatRoomId);
+            pstmt.setInt(1, chatNum);
             pstmt.executeUpdate();
 
             Common.close(pstmt);
@@ -159,12 +162,12 @@ public class ChattingDAO {
         }
     }
     // ✨대화 종료시 채팅 메시지 삭제
-    public void deleteChatMessages(int chatRoomId) {
+    public void deleteChatMessages(int chatNum) {
         String sql = "DELETE FROM CHAT_MESSAGES_TB WHERE CHAT_NUM_FK = ?";
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, chatRoomId);
+            pstmt.setInt(1, chatNum);
             pstmt.executeUpdate();
 
             Common.close(pstmt);

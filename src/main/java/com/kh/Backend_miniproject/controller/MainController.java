@@ -97,7 +97,7 @@ public class MainController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    // ⚠️회원 프로필 사진 요청에 따른 응답(확인 필요)
+    // 🏓️회원 프로필 사진 요청에 따른 응답
     @PostMapping("/member/pfImg")
     public ResponseEntity<String> fetchProfileImage(@RequestBody Map<String, String> emailData) {
         String email = emailData.get("email");
@@ -105,12 +105,12 @@ public class MainController {
         String pfImg = mdao.getProfileImageByEmail(email);
 
         if (pfImg == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(pfImg, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(pfImg, HttpStatus.OK);
     }
 
-    // ⚠️회원 닉네임 요청에 따른 응답(확인 필요)
+    // 🏓️회원 닉네임 요청에 따른 응답
     @PostMapping("/member/nickname")
     public ResponseEntity<String> fetchNickname(@RequestBody Map<String, String> emailData) {
         String email = emailData.get("email");
