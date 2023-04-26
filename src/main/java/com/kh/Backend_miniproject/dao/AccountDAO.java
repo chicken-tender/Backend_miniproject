@@ -44,16 +44,21 @@ public class AccountDAO {
     // 🔑 마이페이지: 회원정보 조회 (등급아이콘, 총 게시글 수, 총 댓글 수)
     public List<MyPageVO> getMemberInfoByNum(int memberNum) {
         List<MyPageVO> list = new ArrayList<>();
+
+        String sql = "SELECT m.PF_IMG, g.GRADE_ICON_URL, m.REG_DATE, m.NICKNAME, m.EMAIL, m.JOB, m.YEAR," +
+                "  (SELECT COUNT(p.MEMBER_NUM_FK) FROM POST_TB p WHERE p.MEMBER_NUM_FK = ?) AS mpc," +
+                " (SELECT COUNT(r.MEMBER_NUM_FK) FROM REPLY_TB r WHERE r.MEMBER_NUM_FK = ?) AS mrc" +
+                " FROM MEMBERS_TB m" +
+                " JOIN GRADE_TB g ON m.GRADE_NUM_FK = g.GRADE_NUM_PK" +
+                " WHERE m.MEMBER_NUM_PK = ?";
         try {
             conn = Common.getConnection();
-            stmt = conn.createStatement();
-            String sql = "SELECT m.PF_IMG, g.GRADE_ICON_URL, m.REG_DATE, m.NICKNAME, m.EMAIL, m.JOB, m.YEAR," +
-                    "  (SELECT COUNT(p.MEMBER_NUM_FK) FROM POST_TB p WHERE p.MEMBER_NUM_FK = " + memberNum + ") AS mpc," +
-                    " (SELECT COUNT(r.MEMBER_NUM_FK) FROM REPLY_TB r WHERE r.MEMBER_NUM_FK = " + memberNum + ") AS mrc" +
-                    " FROM MEMBERS_TB m" +
-                    " JOIN GRADE_TB g ON m.GRADE_NUM_FK = g.GRADE_NUM_PK" +
-                    " WHERE m.MEMBER_NUM_PK = " + memberNum;
-            rs = stmt.executeQuery(sql);
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
+            pstmt.setInt(2, memberNum);
+            pstmt.setInt(3, memberNum);
+
+            rs = pstmt.executeQuery();
 
             while(rs.next()) {
                 String pfImg = rs.getString("PF_IMG");
@@ -95,11 +100,12 @@ public class AccountDAO {
         String sql = "SELECT ts.STACK_ICON_URL" +
                 " FROM MEMBER_TS_TB mts JOIN TECH_STACK_TB ts" +
                 " ON ts.STACK_NUM_PK = mts.STACK_NUM_FK" +
-                " WHERE MEMBER_NUM_FK = " + memberNum;
+                " WHERE MEMBER_NUM_FK = ?";
 
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -128,13 +134,14 @@ public class AccountDAO {
                 " FROM POST_TB p " +
                 " JOIN BOARD_TB b ON p.BOARD_NUM_FK = b.BOARD_NUM_PK " +
                 " JOIN MEMBERS_TB m ON p.MEMBER_NUM_FK = m.MEMBER_NUM_PK " +
-                " WHERE m.MEMBER_NUM_PK = " + memberNum +
+                " WHERE m.MEMBER_NUM_PK = ?" +
                 " ORDER BY p.WRITE_DATE DESC) " +
                 " WHERE ROWNUM <=5";
 
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -166,7 +173,7 @@ public class AccountDAO {
                 " JOIN POST_TB p ON r.POST_NUM_FK = p.POST_NUM_PK" +
                 " JOIN BOARD_TB b ON p.BOARD_NUM_FK = b.BOARD_NUM_PK" +
                 " JOIN MEMBERS_TB m ON p.MEMBER_NUM_FK = m.MEMBER_NUM_PK" +
-                " WHERE m.MEMBER_NUM_PK = " + memberNum +
+                " WHERE m.MEMBER_NUM_PK = ?" +
                 " ORDER BY p.WRITE_DATE DESC" +
                 ")" +
                 " WHERE ROWNUM <=5";
@@ -174,7 +181,7 @@ public class AccountDAO {
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-//            pstmt.setInt(1, memberNum);
+            pstmt.setInt(1, memberNum);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -202,11 +209,11 @@ public class AccountDAO {
         String sql = "SELECT m.PF_IMG, m.REG_DATE, m.NICKNAME, m.EMAIL, m.JOB, m.YEAR" +
                 " FROM MEMBERS_TB m" +
                 " JOIN GRADE_TB g ON m.GRADE_NUM_FK = g.GRADE_NUM_PK" +
-                " WHERE m.MEMBER_NUM_PK = " + memberNum;
+                " WHERE m.MEMBER_NUM_PK = ?";
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-//            pstmt.setInt(1, memberNum);
+            pstmt.setInt(1, memberNum);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
