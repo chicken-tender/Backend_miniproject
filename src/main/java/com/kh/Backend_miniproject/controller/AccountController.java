@@ -15,7 +15,7 @@ import java.util.Map;
 public class AccountController {
     // 📍 POST : 로그인 - 경미 테스트
     @PostMapping("/login")
-    public ResponseEntity<Boolean> loginUser(@RequestBody Map<String, String> loginData) {
+    public ResponseEntity<Boolean> loginMember(@RequestBody Map<String, String> loginData) {
         String email = loginData.get("email");
         String pwd = loginData.get("pwd");
         AccountDAO aDao = new AccountDAO();
