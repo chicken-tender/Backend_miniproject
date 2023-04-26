@@ -236,8 +236,8 @@ public class BoardDAO {
 
     // ✨ 게시글 작성
     public void writePost(PostVO post) {
-        String sql = "INSERT INTO POST_TB (TITLE, CONTENT, TAG, IMG_URL, VIEW_COUNT, LIKE_COUNT, WRITE_DATE, BOARD_NUM_FK) " +
-                "VALUES (?, ?, ?, ?, 0, 0, SYSDATE, (SELECT BOARD_NUM FROM BOARD_TB WHERE BOARD_NAME = ?))";
+        String sql = "INSERT INTO POST_TB (POST_NUM_PK, TITLE, CONTENT, TAG, IMG_URL, VIEW_COUNT, LIKE_COUNT, WRITE_DATE, BOARD_NUM_FK) " +
+                "VALUES (seq_POST_NUM.NEXTVAL, ?, ?, ?, ?, 0, 0, SYSDATE, ?)";
 
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -250,7 +250,7 @@ public class BoardDAO {
             pstmt.setString(2, post.getContent());
             pstmt.setString(3, post.getTag());
             pstmt.setString(4, post.getImgUrl());
-            pstmt.setString(5, post.getBoardName());
+            pstmt.setInt(5, post.getBoardNum());
             pstmt.executeUpdate();
 
             Common.close(pstmt);
@@ -394,7 +394,7 @@ public class BoardDAO {
 
 
     // ✨댓글 보기(프로필이미지, 댓글작성자 닉네임, 내용, 작성날짜)
-    public List<ReplyVO> viewReply(int postNum, int startIndex, int endIndex) {
+    public List<ReplyVO> viewReply(int postNum) {
         String sql = "SELECT M.PF_IMG, M.NICKNAME, R.REPLY_CONTENT, R.WRITE_DATE " +
                 "FROM REPLY_TB R " +
                 "JOIN MEMBERS_TB M ON R.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
@@ -411,8 +411,6 @@ public class BoardDAO {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, postNum);
-            pstmt.setInt(2, startIndex);
-            pstmt.setInt(3, endIndex);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -437,9 +435,9 @@ public class BoardDAO {
 
 
     // ✨댓글 작성
-    public void insertReply(int postNum, int memberNum, String content) {
-            String sql = "INSERT INTO REPLY_TB (POST_NUM_FK, MEMBER_NUM_FK, REPLY_CONTENT, WRITE_DATE) " +
-                    "VALUES (?, ?, ?, SYSDATE)";
+    public void writeReply(int postNum, int memberNum, String content) {
+        String sql = "INSERT INTO REPLY_TB (REPLY_NUM_PK, POST_NUM_FK, MEMBER_NUM_FK, REPLY_CONTENT, WRITE_DATE) " +
+                "VALUES (seq_REPLY_NUM.NEXTVAL, ?, ?, ?, SYSDATE)";
 
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -534,4 +532,6 @@ public class BoardDAO {
 
         return boardList;
     }
+
+
 }
