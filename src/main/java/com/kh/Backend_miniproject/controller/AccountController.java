@@ -1,12 +1,11 @@
 package com.kh.Backend_miniproject.controller;
 import com.kh.Backend_miniproject.dao.AccountDAO;
-import com.kh.Backend_miniproject.vo.MembersVO;
-import com.kh.Backend_miniproject.vo.MyPageVO;
-import com.kh.Backend_miniproject.vo.TechStackVO;
+import com.kh.Backend_miniproject.vo.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -80,7 +79,6 @@ public class AccountController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-
     // ❌(마이페이지) 회원정보 기본 (프로필사진, 가입일, 닉네임, 이메일, 직업, 연차)
     @GetMapping("/members/my-page-test")
     public ResponseEntity<List<MembersVO>> fetchMemberInfoTest(@RequestParam int memberNum){
@@ -89,6 +87,63 @@ public class AccountController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    // POST:bust_in_silhouette: 회원 가입 : 기술스택 X
+    @PostMapping("/members/new")
+    public ResponseEntity<Boolean> memberRegister(@RequestBody Map<String, String> regData) {
+        Integer getGradeNumber= Integer.valueOf(regData.get("gradeNumber"));
+        String getEmail = regData.get("email");
+        String getPwd = regData.get("password");
+        String getNickname = regData.get("nickName");
+        String getJob = regData.get("job");
+        Integer getYear = Integer.valueOf(regData.get("year"));
+        String getPfImg = String.valueOf(regData.get("pfImg"));
+        AccountDAO dao = new AccountDAO();
+        boolean isTrue = dao.createMember(getGradeNumber, getEmail, getPwd, getNickname, getJob, getYear, getPfImg);
+        return new ResponseEntity<>(isTrue, HttpStatus.OK);
+    }
 
+    // 🔥경미. 회원가입시 생성된 회원번호를 이용해서 기술스택 저장
+    @PostMapping("/signup")
+    public ResponseEntity<Boolean> signUp(@RequestBody Map<String, Object> request) {
+        boolean result = false;
+        AccountDAO ado = new AccountDAO();
+
+        int gradeNum = (int) request.get("gradeNum");
+        String email = (String) request.get("email");
+        String pwd = (String) request.get("pwd");
+        String nickname = (String) request.get("nickname");
+        String job = (String) request.get("job");
+        int year = (int) request.get("year");
+        String pfImg = (String) request.get("pfImg");
+
+        result = ado.createMember(gradeNum, email, pwd, nickname, job, year, pfImg);
+
+        if(result) {
+            List<Map<String, Object>> techStacks = (List<Map<String, Object>>) request.get("techStacks");
+            for (Map<String, Object> stack : techStacks) {
+                MemberTechStackVO svo = new MemberTechStackVO();
+                int stackNum = (int)stack.get("stackNum");
+                svo.setStackNum(stackNum);
+                result = ado.createMemberTechStack(email, svo.getStackNum());
+                if(!result) {
+                    return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+                }
+            }
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    // 🔥경미. 마이페이지 회원정보 조회
+    @GetMapping("/mypage")
+    public ResponseEntity<SignUpVO> fetchMyPageMemberInfo(@RequestParam("memberNum") int memberNum) {
+        AccountDAO ado = new AccountDAO();
+        SignUpVO svo = ado.readMemberInfoByNumber(memberNum);
+
+        if(svo != null) {
+            List<MemberTechStackVO> techStacks = ado.getMemberTechStack(memberNum);
+            svo.setTechStacks(techStacks);
+            return new ResponseEntity<>(svo, HttpStatus.OK);
+        } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 }
 

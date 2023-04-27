@@ -1,8 +1,6 @@
 package com.kh.Backend_miniproject.dao;
 import com.kh.Backend_miniproject.common.Common;
-import com.kh.Backend_miniproject.vo.MembersVO;
-import com.kh.Backend_miniproject.vo.MyPageVO;
-import com.kh.Backend_miniproject.vo.TechStackVO;
+import com.kh.Backend_miniproject.vo.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -386,7 +384,9 @@ public class AccountDAO {
 
 
     // 👤(회원가입) 기본 정보 저장
-    public void createMember(int gradeNumber, String email, String password, String nickName, String job, int year, String pfImg) {
+    // 🔥INSERT 문은 프론트엔드에게 성공여부만 알려주면 되기 때문에 return 타입 boolean으로 하면 됨
+    public boolean createMember(int gradeNumber, String email, String password, String nickName, String job, int year, String pfImg) {
+        int result = 0;
         String sql = "INSERT INTO MEMBERS_TB (MEMBER_NUM_PK, GRADE_NUM_FK, EMAIL, PWD, NICKNAME, JOB, YEAR, PF_IMG)" +
                 " VALUES (seq_MEMBER_NUM.NEXTVAL, ?, ?, ?, ?, ?, ?, ?)";
         try {
@@ -399,39 +399,105 @@ public class AccountDAO {
             pstmt.setString(5, job);
             pstmt.setInt(6, year);
             pstmt.setString(7, pfImg);
-            pstmt.executeUpdate();
+            result = pstmt.executeUpdate();
 
             Common.close(pstmt);
             Common.close(conn);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if(result == 1) return true;
+        else return false;
     }
 
-    // 👤(회원가입) 회원의 기술 스택 저장
-    public void createMemberTechStack(int memberNumber, int stackNumber) {
-        String sql = "INSERT INTO MEMBER_TS_TB (MEMBER_NUM_FK, STACK_NUM_FK) VALUES (?, ?)";
+    /* 🔥1. DAO 생성 : SELECT MEMBER_NUM_PK FROM MEMBERS_TB WHERE EMAIL = '';
+            ✨return 타입은 int
+         2. DAO 수정 : 회원의 기술 스택 저장 DAO 수정
+         3. 1,2 쿼리문을 사용하여 기술스택 응답하는 컨트롤러 생성 */
+
+    // 🔥이메일을 가지고 회원번호 얻기
+    public int getMemberNumbyEmail(String email) {
+        int memberNum = 0;
+        String sql = "SELECT MEMBER_NUM_PK FROM MEMBERS_TB WHERE EMAIL = ?";
 
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, memberNumber);
-            pstmt.setInt(2, stackNumber);
-            pstmt.executeUpdate();
+            pstmt.setString(1, email);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                memberNum = rs.getInt("MEMBER_NUM_PK");
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return memberNum;
+    }
+
+
+    // 👤(회원가입) 회원의 기술 스택 저장
+    // 🔥수정
+    public boolean createMemberTechStack(String email, int stackNum) {
+        int result = 0;
+        String sql = "INSERT INTO MEMBER_TS_TB (MEMBER_NUM_FK, STACK_NUM_FK) VALUES (?, ?)";
+        AccountDAO ado = new AccountDAO();
+        int memberNum = ado.getMemberNumbyEmail(email);
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
+            pstmt.setObject(2, stackNum);
+            result = pstmt.executeUpdate();
 
             Common.close(pstmt);
             Common.close(conn);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if(result == 1) return true;
+        else return false;
     }
 
-    // 🔐회원 정보 read (등급 아이콘 & 기술 스택 제외)
-    public List<MembersVO> readMemberInfoByNumber(int memberNum) {
-        List<MembersVO> list = new ArrayList<>();
-        String sql = "SELECT m.PF_IMG, m.REG_DATE, m.EMAIL, m.PWD, m.NICKNAME, m.JOB, m.YEAR" +
-                " FROM MEMBERS_TB m" +
-                " WHERE m.MEMBER_NUM_PK = ?";
+    // 🔥회원의 기술스택 조회
+    public List<MemberTechStackVO> getMemberTechStack(int memberNum) {
+        List<MemberTechStackVO> list = new ArrayList<>();
+        String sql = "SELECT * FROM MEMBER_TS_TB WHERE MEMBER_NUM_FK = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                MemberTechStackVO mtsVo = new MemberTechStackVO();
+                memberNum = rs.getInt("MEMBER_NUM_FK");
+                mtsVo.setStackNum(rs.getInt("STACK_NUM_FK"));
+
+                list.add(mtsVo);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // 🔥
+
+    // 🔐회원 정보 read
+    public SignUpVO readMemberInfoByNumber(int memberNum) {
+        SignUpVO vo = null;
+        String sql = "SELECT * FROM MEMBERS_TB WHERE MEMBER_NUM_PK = ?";
+
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -439,15 +505,14 @@ public class AccountDAO {
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                MembersVO vo = new MembersVO();
-                vo.setPfImg(rs.getString("PF_IMG"));
-                vo.setRegDate(rs.getDate("REG_DATE"));
+                vo = new SignUpVO();
+                vo.setGradeNum(rs.getInt("GRADE_NUM_FK"));
                 vo.setEmail(rs.getString("EMAIL"));
                 vo.setPwd(rs.getString("PWD"));
                 vo.setNickname(rs.getString("NICKNAME"));
                 vo.setJob(rs.getString("JOB"));
                 vo.setYear(rs.getInt("YEAR"));
-                list.add(vo);
+                vo.setPfImg(rs.getString("PF_IMG"));
             }
             Common.close(rs);
             Common.close(pstmt);
@@ -455,7 +520,7 @@ public class AccountDAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return list;
+        return vo;
     }
 
     // 🔐회원 정보 변경 : 이메일

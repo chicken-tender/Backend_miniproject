@@ -5,6 +5,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MemberTechStackVO {
-    private int memberNum;
+    private MemberTechStackVO memberNum;
     private int stackNum;
 }
