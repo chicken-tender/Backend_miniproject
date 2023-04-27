@@ -8,7 +8,6 @@ import com.kh.Backend_miniproject.vo.ReplyVO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +69,7 @@ public class BoardDAO {
 
 
     // ✨베스트 게시판으로 글 이동
-    public void updateBestBoard() {
+    public void moveToBestBoard() {
         String sql = "UPDATE POST_TB SET BOARD_NUM_FK = 5 WHERE BOARD_NUM_FK = 2 AND LIKE_COUNT >= 100";
 
         try {
@@ -154,10 +153,11 @@ public class BoardDAO {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
 
+            String kw = "%" + keyword + "%";
             pstmt.setInt(1, boardNum);
-            pstmt.setString(2, "%" + keyword + "%");
-            pstmt.setString(3, "%" + keyword + "%");
-            pstmt.setString(4, "%" + keyword + "%");
+            pstmt.setString(2, kw);
+            pstmt.setString(3, kw);
+            pstmt.setString(4, kw);
             pstmt.setInt(5, startRow);
             pstmt.setInt(6, endRow);
 
@@ -337,7 +337,7 @@ public class BoardDAO {
 
 
     // ✨게시글 좋아요 업데이트
-    public int updateLikes(int postNum, int memberId) {
+    public int updateLikes(int postNum, int memberNum) {
         // 회원(memberId)이 특정 게시물(postNum)에 이미 좋아요를 눌렀는지 확인
         String checkSql = "SELECT COUNT(*) FROM LIKES_TB WHERE POST_NUM_FK = ? AND MEMBER_NUM_FK = ?";
         // 좋아요가 없을 때, 새로운 좋아요 추가
@@ -356,7 +356,7 @@ public class BoardDAO {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(checkSql);
             pstmt.setInt(1, postNum);
-            pstmt.setInt(2, memberId);
+            pstmt.setInt(2, memberNum);
             rs = pstmt.executeQuery();
             rs.next();
             int isLiked = rs.getInt(1); // 첫번쨰 칼럼 값
@@ -368,12 +368,12 @@ public class BoardDAO {
             if (isLiked == 0) { // 좋아요가 없다면(0)
                 pstmt = conn.prepareStatement(insertSql);
                 pstmt.setInt(1, postNum);
-                pstmt.setInt(2, memberId);
+                pstmt.setInt(2, memberNum);
                 pstmt.executeUpdate();
             } else { // 좋아요 있으면 삭제
                 pstmt = conn.prepareStatement(deleteSql);
                 pstmt.setInt(1, postNum);
-                pstmt.setInt(2, memberId);
+                pstmt.setInt(2, memberNum);
                 pstmt.executeUpdate();
             }
             Common.close(pstmt);
