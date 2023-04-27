@@ -20,8 +20,8 @@ public class BoardController {
 
 
     // ✏️일반 게시판 글 목록 조회
-    @GetMapping("/{boardName}/{pageNum}")
-    public ResponseEntity<List<PostVO>> getGeneralPostList(@PathVariable("boardName") String boardName, @PathVariable("pageNum") int pageNum) {
+    @GetMapping("/{boardName}")
+    public ResponseEntity<List<PostVO>> getGeneralPostList(@PathVariable("boardName") String boardName, @RequestParam("pageNum") int pageNum) {
         BoardDAO dao = new BoardDAO();
         List<BoardVO> boardNumList = dao.getBoardNum(boardName);
         List<PostVO> list = new ArrayList<>();
@@ -36,18 +36,18 @@ public class BoardController {
 
 
     // ✏️포토폴리오게시판 목록 조회
-    @GetMapping("/Portfolio/{pageNum}")
-    public ResponseEntity<List<PostVO>> fetchPortfolioList(@PathVariable("pageNum") int pageNum) {
+    @GetMapping("/Portfolio")
+    public ResponseEntity<List<PostVO>> fetchPortfolioList(@RequestParam("pageNum") int pageNum) {
         BoardDAO dao = new BoardDAO();
         List<PostVO> list = dao.portfolioList(pageNum);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     // ✏️베스트 게시판으로 이동
-    @PostMapping("/board/updateBestBoard")
-    public ResponseEntity<String> fetchUpdateBestBoard() {
+    @PostMapping("/board/best")
+    public ResponseEntity<String> fetchMoveBestBoard() {
         BoardDAO dao = new BoardDAO();
-        dao.updateBestBoard();
+        dao.moveToBestBoard();
         return new ResponseEntity<>("true", HttpStatus.OK);
     }
 
@@ -86,7 +86,7 @@ public class BoardController {
 
 
     // 👀조회수 증가
-    @GetMapping("/post/{postNum}/increaseViews")
+    @PostMapping("/post/{postNum}/views")
     public ResponseEntity<String> fetchIncreaseViews(@PathVariable int postNum) {
         BoardDAO dao = new BoardDAO();
         int result = dao.increaseViews(postNum);
@@ -98,7 +98,7 @@ public class BoardController {
     }
 
     // ✏️ 게시글 작성
-    @PostMapping("/write")
+    @PostMapping("/post")
     public ResponseEntity<String> fetchWritePost(@RequestBody PostVO post) {
         BoardDAO dao = new BoardDAO();
         dao.writePost(post);
@@ -106,7 +106,7 @@ public class BoardController {
     }
 
     // ✏️ 댓글 작성
-    @PostMapping("/writeReply")
+    @PostMapping("/reply")
     public ResponseEntity<String> fetchWriteReply(@RequestBody Map<String, Object> contentData) {
         int postNum = (int) contentData.get("postNum");
         int memberNum = (int) contentData.get("memberNum");
@@ -129,7 +129,7 @@ public class BoardController {
     }
 
     // ✏️댓글 삭제
-    @DeleteMapping("/reply/delete/{replyNum}")
+    @DeleteMapping("/reply/{replyNum}")
     public ResponseEntity<String> deleteReply(@PathVariable int replyNum) {
         BoardDAO dao = new BoardDAO();
         dao.deleteReply(replyNum);
@@ -161,10 +161,6 @@ public class BoardController {
         int result = dao.updateLikes(postNum, memberNum);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-
-
-
-
 
 }
 

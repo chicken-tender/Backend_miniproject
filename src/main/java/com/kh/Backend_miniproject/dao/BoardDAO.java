@@ -8,7 +8,6 @@ import com.kh.Backend_miniproject.vo.ReplyVO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +69,7 @@ public class BoardDAO {
 
 
     // ✨베스트 게시판으로 글 이동
-    public void updateBestBoard() {
+    public void moveToBestBoard() {
         String sql = "UPDATE POST_TB SET BOARD_NUM_FK = 5 WHERE BOARD_NUM_FK = 2 AND LIKE_COUNT >= 100";
 
         try {
