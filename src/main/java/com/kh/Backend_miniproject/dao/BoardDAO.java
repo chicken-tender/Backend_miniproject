@@ -20,12 +20,12 @@ public class BoardDAO {
     // ✨일반 게시판 글 목록 (한 페이지당 10개씩)
 
     public List<PostVO> generalPostList(int boardNum, int pageNum) {
-        int numPerPage = 10; // 페이지 당 보여주는 항목 개수
+        int numPerPage = 8; // 페이지 당 보여주는 항목 개수
         List<PostVO> list = new ArrayList<>();
         int startRow = (pageNum - 1) * numPerPage + 1;
         int endRow = pageNum * numPerPage;
 
-        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.WRITE_DATE, P.VIEW_COUNT, P.LIKE_COUNT " +
+        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.WRITE_DATE, P.VIEW_COUNT " +
                 "FROM ( " +
                 "  SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT, LIKE_COUNT, " +
                 "  ROW_NUMBER() OVER (ORDER BY WRITE_DATE DESC) AS RN " +
@@ -35,6 +35,7 @@ public class BoardDAO {
                 "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
                 "WHERE P.RN BETWEEN ? AND ? " +
                 "ORDER BY WRITE_DATE DESC";
+
 
         try {
             conn = Common.getConnection();
@@ -53,7 +54,6 @@ public class BoardDAO {
                 pv.setWriteDate(rs.getDate("WRITE_DATE"));
                 pv.setNickname(rs.getString("NICKNAME"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
-                pv.setLikeCount(rs.getInt("LIKE_COUNT"));
                 list.add(pv);
             }
 
@@ -84,23 +84,22 @@ public class BoardDAO {
 
     }
 
-
     // ✨포트폴리오 게시판 글 목록 (한 페이지당 6개씩)
     public List<PostVO> portfolioList(int pageNum) {
         int numPerPage = 6;
         List<PostVO> list = new ArrayList<>();
-        int startRow = (pageNum - 1) * numPerPage + 1;
+        int startRow = (pageNum - 1) * numPerPage + 1 ;
         int endRow = pageNum * numPerPage;
 
-        String sql = "SELECT POST_NUM_PK, TITLE, IMG_URL " +
+        String sql = "SELECT P.TITLE, P.IMG_URL, P.LIKE_COUNT, P.VIEW_COUNT, M.NICKNAME " +
                 "FROM ( " +
-                "   SELECT POST_NUM_PK, TITLE, IMG_URL, WRITE_DATE, ROW_NUMBER() OVER(ORDER BY WRITE_DATE DESC) AS RNUM " +
+                "   SELECT POST_NUM_PK, TITLE, IMG_URL, LIKE_COUNT, VIEW_COUNT, WRITE_DATE, MEMBER_NUM_FK, ROW_NUMBER() OVER(ORDER BY WRITE_DATE DESC) AS RNUM " +
                 "   FROM POST_TB " +
                 "   WHERE BOARD_NUM_FK = 4 " +
-                ") " +
+                ") P " +
+                "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
                 "WHERE RNUM BETWEEN ? AND ? " +
                 "ORDER BY WRITE_DATE DESC";
-
 
         try {
             conn = Common.getConnection();
@@ -113,9 +112,11 @@ public class BoardDAO {
 
             while (rs.next()) {
                 PostVO pv = new PostVO();
-                pv.setPostNum(rs.getInt("POST_NUM_PK"));
                 pv.setTitle(rs.getString("TITLE"));
                 pv.setImgUrl(rs.getString("IMG_URL"));
+                pv.setLikeCount(rs.getInt("LIKE_COUNT"));
+                pv.setViewCount(rs.getInt("VIEW_COUNT"));
+                pv.setNickname(rs.getString("NICKNAME"));
                 list.add(pv);
             }
 
