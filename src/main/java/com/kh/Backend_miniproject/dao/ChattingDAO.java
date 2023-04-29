@@ -1,9 +1,11 @@
 package com.kh.Backend_miniproject.dao;
 import com.kh.Backend_miniproject.common.Common;
+import com.kh.Backend_miniproject.vo.ChatMessagesVO;
 import com.kh.Backend_miniproject.vo.MembersVO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,15 +106,15 @@ public class ChattingDAO {
     }
 
     // ✨멘토 멘티 매칭 후 생성된 채팅방 저장
-    public boolean createChatRoom(int mentorMemberNumber, int menteeMemberNumber) {
+    public boolean createChatRoom(int mentorMemberNum, int menteeMemberNum) {
         int result = 0;
         String sql = "INSERT INTO CHAT_ROOM_TB (CHAT_NUM_PK, MENTOR_FK, MENTEE_FK) " +
                 "VALUES (seq_CHAT_NUM.NEXTVAL, ?, ?)";
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, mentorMemberNumber);
-            pstmt.setInt(2, menteeMemberNumber);
+            pstmt.setInt(1, mentorMemberNum);
+            pstmt.setInt(2, menteeMemberNum);
             result = pstmt.executeUpdate();
 
             Common.close(pstmt);
@@ -125,18 +127,22 @@ public class ChattingDAO {
     }
 
     // ✨채팅 메시지 저장
-    public void saveChatMessage(int chatNum, int senderId, String message, String codeBlock, int msgType) {
-        String sql = "INSERT INTO CHAT_MESSAGES_TB (MSG_NUM_PK, CHAT_NUM_FK, SENDER_ID_FK, MESSAGE, CODE_BLOCK, MSG_TYPE) " +
-                "VALUES (seq_CHAT_MSG_NUM.NEXTVAL, ?, ?, ?, ?, ?)";
+    public boolean saveChatMessage(int chatNum, int senderId, int receiverId, String message, String codeBlock, int messageType, Timestamp createdAt, Character isRead) {
+        int result = 0;
+        String sql = "INSERT INTO CHAT_MESSAGES_TB (MSG_NUM_PK, CHAT_NUM_FK, SENDER_ID_FK, RECEIVER_ID_FK, MESSAGE, CODE_BLOCK, MSG_TYPE, CREATED_AT, IS_READ) " +
+                "VALUES (seq_MSG_NUM.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, chatNum);
             pstmt.setInt(2, senderId);
-            pstmt.setString(3, message);
-            pstmt.setString(4, codeBlock);
-            pstmt.setInt(5, msgType);
-            pstmt.executeUpdate();
+            pstmt.setInt(3, receiverId);
+            pstmt.setString(4, message);
+            pstmt.setString(5, codeBlock);
+            pstmt.setInt(6, messageType);
+            pstmt.setTimestamp(7, createdAt);
+            pstmt.setString(8, String.valueOf(isRead));
+            result = pstmt.executeUpdate();
 
             Common.close(pstmt);
             Common.close(conn);
@@ -144,6 +150,8 @@ public class ChattingDAO {
         } catch(Exception e) {
             e.printStackTrace();
         }
+        if(result == 1) return true;
+        else return false;
     }
 
     // ✨대화 종료시 대화방 삭제
@@ -177,4 +185,77 @@ public class ChattingDAO {
         }
     }
 
+    // 🔥특정 사용자와의 대화 내용 조회
+    public List<ChatMessagesVO> getChatMessages(int senderId, int receiverId) {
+        List<ChatMessagesVO> list = new ArrayList<>();
+        String sql = "SELECT * FROM CHAT_MESSAGES_TB WHERE (SENDER_ID_FK = ? AND RECEIVER_ID_FK = ?) OR (SENDER_ID_FK = ? AND RECEIVER_ID_FK = ?) ORDER BY CREATED_AT DESC";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, senderId);
+            pstmt.setInt(2, receiverId);
+            pstmt.setInt(3, senderId);
+            pstmt.setInt(4, receiverId);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                ChatMessagesVO cvo = new ChatMessagesVO();
+                cvo.setMessageNum(rs.getInt("MSG_NUM_PK"));
+                cvo.setChatNum(rs.getInt("CHAT_NUM_FK"));
+                cvo.setSenderId(rs.getInt("SENDER_ID_FK"));
+                cvo.setReceiverId(rs.getInt("RECEIVER_ID_FK"));
+                cvo.setMessage(rs.getString("MESSAGE"));
+                cvo.setCodeBlock(rs.getString("CODE_BLOCK"));
+                cvo.setMessageType(rs.getInt("MSG_TYPE"));
+                cvo.setCreatedAt(rs.getTimestamp("CREATED_AT"));
+                cvo.setIsRead(rs.getString("IS_READ").charAt(0));
+
+                list.add(cvo);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // 🔥안읽은 메시지 조회
+    public List<ChatMessagesVO> getUnreadMessages(int memberNum) {
+        List<ChatMessagesVO> list = new ArrayList<>();
+        String sql = "SELECT * FROM CHAT_MESSAGES_TB WHERE RECEIVER_ID_FK = ? AND IS_READ = 'N'";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                ChatMessagesVO cvo = new ChatMessagesVO();
+                cvo.setMessageNum(rs.getInt("MSG_NUM_PK"));
+                cvo.setChatNum(rs.getInt("CHAT_NUM_FK"));
+                cvo.setSenderId(rs.getInt("SENDER_ID_FK"));
+                cvo.setReceiverId(rs.getInt("RECEIVER_ID_FK"));
+                cvo.setMessage(rs.getString("MESSAGE"));
+                cvo.setCodeBlock(rs.getString("CODE_BLOCK"));
+                cvo.setMessageType(rs.getInt("MSG_TYPE"));
+                cvo.setCreatedAt(rs.getTimestamp("CREATED_AT"));
+                cvo.setIsRead(rs.getString("IS_READ").charAt(0));
+
+                list.add(cvo);
+            }
+
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

@@ -1,5 +1,6 @@
 package com.kh.Backend_miniproject.controller;
 import com.kh.Backend_miniproject.dao.ChattingDAO;
+import com.kh.Backend_miniproject.vo.ChatMessagesVO;
 import com.kh.Backend_miniproject.vo.MembersVO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,19 +56,40 @@ public class ChattingController {
         }
     }
 
-    // 🏓채팅 칠 때마다 메시지 저장
-    @PostMapping("/chat/message")
-    public ResponseEntity<Void> saveChatMessage(@RequestBody Map<String, Object> messageData) {
-        int chatNum = (Integer) messageData.get("chatNum");
-        int senderId = (Integer) messageData.get("senderId");
-        String message = (String) messageData.get("message");
-        String codeBlock = (String) messageData.get("codeBlock");
-        int msgType = (Integer) messageData.get("msgType");
-
+    // 🏓채팅 메시지 전송
+    @PostMapping("/chat/messages")
+    public ResponseEntity<Boolean> sendChatMessage(@RequestBody ChatMessagesVO cvo) {
         ChattingDAO cdao = new ChattingDAO();
-        cdao.saveChatMessage(chatNum, senderId, message, codeBlock, msgType);
+        boolean result = cdao.saveChatMessage(cvo.getChatNum(), cvo.getSenderId(), cvo.getReceiverId(), cvo.getMessage(),
+                cvo.getCodeBlock(), cvo.getMessageType(), cvo.getCreatedAt(), cvo.getIsRead());
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        if(result) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // 🏓채팅 메시지 조회
+    @GetMapping("/chat/messages/{senderId}/{receiverId}")
+    public ResponseEntity<List<ChatMessagesVO>> fetchChatMessages(@PathVariable int senderId, @PathVariable int receiverId) {
+        ChattingDAO cdao = new ChattingDAO();
+        List<ChatMessagesVO> list = cdao.getChatMessages(senderId, receiverId);
+
+        if(list == null) {
+            return new ResponseEntity<>(list, HttpStatus.NOT_FOUND);
+        } return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    // 🏓안읽은 메시지 조회
+    @GetMapping("/chat/{userId}/unread-messages")
+    public ResponseEntity<List<ChatMessagesVO>> fetchUnreadMessages(@PathVariable int memberNum) {
+        ChattingDAO cdao = new ChattingDAO();
+        List<ChatMessagesVO> list = cdao.getUnreadMessages(memberNum);
+
+        if(list == null) {
+            return new ResponseEntity<>(list, HttpStatus.NOT_FOUND);
+        } return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     // 🏓대화 종료 요청에 따른 대화방 삭제
