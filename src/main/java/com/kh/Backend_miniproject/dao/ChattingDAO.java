@@ -258,4 +258,24 @@ public class ChattingDAO {
         }
         return list;
     }
+
+    // 🔥메시지를 읽었다고 알려주기
+    public boolean markMessageAsRead(int messageId) {
+        int result = 0;
+        String sql = "UPDATE CHAT_MESSAGES_TB SET IS_READ = 'Y' WHERE RECEIVER_ID_FK = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, messageId);
+            result = pstmt.executeUpdate();
+
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return result == 1;
+    }
 }

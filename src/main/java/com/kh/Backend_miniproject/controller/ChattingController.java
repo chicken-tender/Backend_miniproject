@@ -5,7 +5,9 @@ import com.kh.Backend_miniproject.vo.MembersVO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,10 +60,23 @@ public class ChattingController {
 
     // 🏓채팅 메시지 전송
     @PostMapping("/chat/messages")
-    public ResponseEntity<Boolean> sendChatMessage(@RequestBody ChatMessagesVO cvo) {
+    public ResponseEntity<Boolean> sendChatMessage(@RequestBody Map<String, Object> data) {
         ChattingDAO cdao = new ChattingDAO();
-        boolean result = cdao.saveChatMessage(cvo.getChatNum(), cvo.getSenderId(), cvo.getReceiverId(), cvo.getMessage(),
-                cvo.getCodeBlock(), cvo.getMessageType(), cvo.getCreatedAt(), cvo.getIsRead());
+
+        int chatNum = (Integer) data.get("chatNum");
+        int senderId = (Integer) data.get("senderId");
+        int receiverId = (Integer) data.get("receiverId");
+        String message = (String) data.get("message");
+        String codeBlock = (String) data.get("codeBlock");
+        int messageType = (Integer) data.get("messageType");
+
+        String createdAtStr = (String) data.get("createdAt");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDateTime createdAtLdt = LocalDateTime.parse(createdAtStr, formatter);
+        Timestamp createdAt = Timestamp.valueOf(createdAtLdt);
+        Character isRead = ((String) data.get("isRead")).charAt(0);
+
+        boolean result = cdao.saveChatMessage(chatNum, senderId, receiverId, message, codeBlock, messageType, createdAt, isRead);
 
         if(result) {
             return new ResponseEntity<>(true, HttpStatus.OK);
@@ -90,6 +105,19 @@ public class ChattingController {
         if(list == null) {
             return new ResponseEntity<>(list, HttpStatus.NOT_FOUND);
         } return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    // 🏓️메시지 읽었다고 알리기
+    @PatchMapping("/chat/messages/{messageId}")
+    public ResponseEntity<Boolean> updateMessageReadStatus(@PathVariable("messageId") int messageId) {
+        ChattingDAO cdao = new ChattingDAO();
+        boolean result = cdao.markMessageAsRead(messageId);
+
+        if(result) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+        }
     }
 
     // 🏓대화 종료 요청에 따른 대화방 삭제
