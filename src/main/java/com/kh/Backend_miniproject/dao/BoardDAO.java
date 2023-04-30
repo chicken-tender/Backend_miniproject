@@ -17,24 +17,27 @@ public class BoardDAO {
     private PreparedStatement pstmt = null;
 
 
-    // ✨일반 게시판 글 목록 (한 페이지당 10개씩)
-
+    // ✨일반 게시판 글 목록 (한 페이지당 8개씩)
     public List<PostVO> generalPostList(int boardNum, int pageNum) {
         int numPerPage = 8; // 페이지 당 보여주는 항목 개수
         List<PostVO> list = new ArrayList<>();
-        int startRow = (pageNum - 1) * numPerPage + 1;
+        int startRow = (pageNum - 1) * numPerPage; // 만약 pageNum이 1이면, 시작행은 0, 끝 행은 7
         int endRow = pageNum * numPerPage;
 
-        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.WRITE_DATE, P.VIEW_COUNT " +
-                "FROM ( " +
-                "  SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT, LIKE_COUNT, " +
-                "  ROW_NUMBER() OVER (ORDER BY WRITE_DATE DESC) AS RN " +
-                "  FROM POST_TB " +
-                "  WHERE BOARD_NUM_FK = ? " +
-                ") P " +
-                "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
-                "WHERE P.RN BETWEEN ? AND ? " +
-                "ORDER BY WRITE_DATE DESC";
+        String sql ="SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.WRITE_DATE, P.VIEW_COUNT " +
+                    "FROM (" +
+                    "  SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT, ROWNUM AS RN " +
+                    "  FROM ( " +
+                    "   SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT " +
+                    "   FROM POST_TB " +
+                    "   WHERE BOARD_NUM_FK = ? " + // 먼저, 게시판 번호가 일치하는 게시물을 WRITE_DATE 기준으로 내림차순 정렬
+                    "   ORDER BY WRITE_DATE DESC " +
+                    "  ) " +
+                    "   WHERE ROWNUM <= ?" + ////각 게시물에 일련 번호를 부여하고, 주어진 페이지의 마지막 행 번호(endRow)보다 작거나 같은 게시물만 선택
+                    ") P " +
+                    "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
+                    "WHERE P.RN BETWEEN ? AND ? " + //주어진 페이지 시작 행 번호(startRow)와 마지막 행 번호(endRow) 사이에 있는 게시물만 선택
+                    "ORDER BY WRITE_DATE DESC";
 
 
         try {
@@ -88,18 +91,22 @@ public class BoardDAO {
     public List<PostVO> portfolioList(int pageNum) {
         int numPerPage = 6;
         List<PostVO> list = new ArrayList<>();
-        int startRow = (pageNum - 1) * numPerPage + 1 ;
+        int startRow = (pageNum - 1) * numPerPage ;
         int endRow = pageNum * numPerPage;
 
-        String sql = "SELECT P.TITLE, P.IMG_URL, P.LIKE_COUNT, P.VIEW_COUNT, M.NICKNAME " +
-                "FROM ( " +
-                "   SELECT POST_NUM_PK, TITLE, IMG_URL, LIKE_COUNT, VIEW_COUNT, WRITE_DATE, MEMBER_NUM_FK, ROW_NUMBER() OVER(ORDER BY WRITE_DATE DESC) AS RNUM " +
-                "   FROM POST_TB " +
-                "   WHERE BOARD_NUM_FK = 4 " +
-                ") P " +
-                "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
-                "WHERE RNUM BETWEEN ? AND ? " +
-                "ORDER BY WRITE_DATE DESC";
+        String sql = "SELECT POST_NUM_PK, TITLE, IMG_URL " +
+                     "FROM ( " +
+                     "   SELECT POST_NUM_PK, TITLE, IMG_URL, ROWNUM AS RNUM " +
+                     "   FROM ( " +
+                     "       SELECT POST_NUM_PK, TITLE, IMG_URL " +
+                     "       FROM POST_TB " +
+                     "       WHERE BOARD_NUM_FK = 4 " +
+                     "       ORDER BY WRITE_DATE DESC " +
+                     "   ) " +
+                     ") " +
+                     "WHERE RNUM BETWEEN ? AND ? " +
+                     "ORDER BY WRITE_DATE DESC";
+
 
         try {
             conn = Common.getConnection();
@@ -132,24 +139,27 @@ public class BoardDAO {
 
     // ✨해당 게시판 게시글 검색
     public List<PostVO> searchPosts(int boardNum, int pageNum, String keyword) {
-        int numPerPage = 10;
-        List<PostVO> result = new ArrayList<>();
-        int startRow = (pageNum - 1) * numPerPage + 1;
+        int numPerPage = 8;
+        int startRow = (pageNum - 1) * numPerPage;
         int endRow = pageNum * numPerPage;
 
         List<PostVO> list = new ArrayList<>();
 
-        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.VIEW_COUNT, P.LIKE_COUNT, P.WRITE_DATE " +
-                "FROM ( " +
-                "  SELECT POST_NUM_PK, TITLE, CONTENT, TAG, MEMBER_NUM_FK, BOARD_NUM_FK, WRITE_DATE, VIEW_COUNT, LIKE_COUNT, " +
-                "         ROW_NUMBER() OVER (ORDER BY POST_NUM_PK DESC) AS RNUM " +
-                "  FROM POST_TB " +
-                "  WHERE BOARD_NUM_FK = ? AND (TITLE LIKE ? OR CONTENT LIKE ? OR TAG LIKE ?) " +
-                ") P "+
+        String sql ="SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.WRITE_DATE, P.VIEW_COUNT " +
+                "FROM (" +
+                "  SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT, ROWNUM AS RN " +
+                "  FROM ( " +
+                "   SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT " +
+                "   FROM POST_TB " +
+                "   WHERE BOARD_NUM_FK = ? " +
+                "   ORDER BY WRITE_DATE DESC " +
+                "  ) " +
+                "   WHERE ROWNUM <= ? AND (TITLE LIKE ? OR CONTENT LIKE ? OR TAG LIKE ?) " +
+                ") P " +
                 "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
-                "JOIN BOARD_TB B ON P.BOARD_NUM_FK = B.BOARD_NUM_PK " +
-                "WHERE RNUM BETWEEN ? AND ?" +
-                "ORDER BY P.POST_NUM_PK DESC";
+                "WHERE P.RN BETWEEN ? AND ? " +
+                "ORDER BY WRITE_DATE DESC";
+
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -171,9 +181,8 @@ public class BoardDAO {
                 pv.setPostNum(rs.getInt("POST_NUM_PK"));
                 pv.setTitle(rs.getString("TITLE"));
                 pv.setNickname(rs.getString("NICKNAME"));
-                pv.setViewCount(rs.getInt("VIEW_COUNT"));
-                pv.setLikeCount(rs.getInt("LIKE_COUNT"));
                 pv.setWriteDate(rs.getDate("WRITE_DATE"));
+                pv.setViewCount(rs.getInt("VIEW_COUNT"));
 
                 list.add(pv);
             }
@@ -237,8 +246,8 @@ public class BoardDAO {
 
     // ✨ 게시글 작성
     public void writePost(PostVO post) {
-        String sql = "INSERT INTO POST_TB (POST_NUM_PK, TITLE, CONTENT, TAG, IMG_URL, VIEW_COUNT, LIKE_COUNT, WRITE_DATE, BOARD_NUM_FK) " +
-                "VALUES (seq_POST_NUM.NEXTVAL, ?, ?, ?, ?, 0, 0, SYSDATE, ?)";
+        String sql = "INSERT INTO POST_TB (POST_NUM_PK, TITLE, CONTENT, TAG, IMG_URL, VIEW_COUNT, LIKE_COUNT, WRITE_DATE, BOARD_NUM_FK, MEMBER_NUM_FK) " +
+                "VALUES (seq_POST_NUM.NEXTVAL, ?, ?, ?, ?, 0, 0, SYSDATE, ?, ?)";
 
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -252,6 +261,7 @@ public class BoardDAO {
             pstmt.setString(3, post.getTag());
             pstmt.setString(4, post.getImgUrl());
             pstmt.setInt(5, post.getBoardNum());
+            pstmt.setInt(6, post.getMemberNum());
             pstmt.executeUpdate();
 
             Common.close(pstmt);
@@ -337,13 +347,13 @@ public class BoardDAO {
     }
 
 
-    // ✨게시글 좋아요 업데이트
+    // ✨게시글 추천수 업데이트
     public int updateLikes(int postNum, int memberNum) {
-        // 회원(memberId)이 특정 게시물(postNum)에 이미 좋아요를 눌렀는지 확인
+        // 회원(memberId)이 특정 게시물(postNum)에 이미 추천을 눌렀는지 확인
         String checkSql = "SELECT COUNT(*) FROM LIKES_TB WHERE POST_NUM_FK = ? AND MEMBER_NUM_FK = ?";
-        // 좋아요가 없을 때, 새로운 좋아요 추가
+        // 추천을 누르지 않았을때, 추천수 추가
         String insertSql = "INSERT INTO LIKES_TB (POST_NUM_FK, MEMBER_NUM_FK) VALUES (?, ?)";
-        // 좋아요가 이미 있을 때, (좋아요 두번 클릭) 기존 좋아요를 삭제 (중복 방지)
+        // 추천을 이미 눌렀을 때, (추천버튼 두번 클릭) 기존 추천을 삭제 (중복 방지)
         String deleteSql = "DELETE FROM Likes WHERE POST_NUM_FK = ? AND MEMBER_NUM_FK = ?";
         // POST_TB의 LIKE_COUNT 업데이트
         String updatePostSql = "UPDATE POST_TB SET LIKE_COUNT = (SELECT COUNT(*) FROM Likes WHERE POST_NUM_FK = ?) WHERE POST_NUM_PK = ?";
@@ -502,12 +512,12 @@ public class BoardDAO {
 
     }
 
-    // 게시글 번호 get
-    public List<BoardVO> getBoardNum(String boardName) {
+    // 게시판 이름으로 게시판 번호 get
+    public int getBoardNum(String boardName) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        List<BoardVO> boardList = new ArrayList<>();
+        int boardNum = 0;
 
         try {
             conn = Common.getConnection();
@@ -516,22 +526,18 @@ public class BoardDAO {
             pstmt.setString(1, boardName.toLowerCase());
             rs = pstmt.executeQuery();
 
-            while (rs.next()) {
-                int boardNum = rs.getInt("BOARD_NUM_PK");
-
-                BoardVO vo = new BoardVO(boardNum, boardName);
-                boardList.add(vo);
+            if (rs.next()) {
+                boardNum = rs.getInt("BOARD_NUM_PK");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
+
             Common.close(rs);
             Common.close(pstmt);
             Common.close(conn);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        return boardList;
+        return boardNum;
     }
-
 
 }

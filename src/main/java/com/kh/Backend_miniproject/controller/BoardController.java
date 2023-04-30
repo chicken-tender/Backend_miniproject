@@ -23,15 +23,14 @@ public class BoardController {
     @GetMapping("/{boardName}")
     public ResponseEntity<List<PostVO>> getGeneralPostList(@PathVariable("boardName") String boardName, @RequestParam("pageNum") int pageNum) {
         BoardDAO dao = new BoardDAO();
-        List<BoardVO> boardNumList = dao.getBoardNum(boardName);
-        List<PostVO> list = new ArrayList<>();
-        for (BoardVO board : boardNumList) {
-            int boardNum = board.getBoardNum();
-            List<PostVO> postList = dao.generalPostList(boardNum, pageNum);
-            list.addAll(postList);
+        int boardNum = dao.getBoardNum(boardName);
+        if (boardNum == 0) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        List<PostVO> postList = dao.generalPostList(boardNum, pageNum);
+        return new ResponseEntity<>(postList, HttpStatus.OK);
     }
+
 
 
 
@@ -64,14 +63,14 @@ public class BoardController {
     @GetMapping("/{boardName}/post/{postNum}")
     public ResponseEntity<List<PostVO>> fetchViewPostDetail(@PathVariable("boardName") String boardName, @PathVariable("postNum") int postNum) {
         BoardDAO dao = new BoardDAO();
-        List<BoardVO> boardNumList = dao.getBoardNum(boardName);
-        if (boardNumList.isEmpty()) {
+        int boardNum = dao.getBoardNum(boardName);
+        if (boardNum == 0) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        int boardNum = boardNumList.get(0).getBoardNum();
         List<PostVO> list = dao.viewPostDetail(boardNum, postNum);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
+
 
     // ✏️ 댓글 보기
     @GetMapping("/post/{postNum}/reply")
@@ -111,7 +110,6 @@ public class BoardController {
         int postNum = (int) contentData.get("postNum");
         int memberNum = (int) contentData.get("memberNum");
         String content = (String) contentData.get("replyContent");
-
         BoardDAO dao = new BoardDAO();
         dao.writeReply(postNum, memberNum, content);
         return new ResponseEntity<>("True", HttpStatus.OK);
