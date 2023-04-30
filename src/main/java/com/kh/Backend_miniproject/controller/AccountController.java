@@ -71,6 +71,13 @@ public class AccountController {
         } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    // [5.1 추가] GET🔑 회원가입시 닉네임 중복확인
+    @GetMapping("/check")
+    public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
+        AccountDAO ado = new AccountDAO();
+        return new ResponseEntity<>(ado.findMemberByNickname(nickname), HttpStatus.OK);
+    }
+
     // GET🔑(마이페이지) 회원의 최근 게시글 5개 (카테고리, 제목, 본문, 날짜)
     @GetMapping("/members/my-5-latest-posts")
     public ResponseEntity<List<MyPageVO>> fetchMyLatestPostsByNum(@RequestParam int memberNum) {
