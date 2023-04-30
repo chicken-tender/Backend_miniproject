@@ -2,12 +2,16 @@ package com.kh.Backend_miniproject.dao;
 import com.kh.Backend_miniproject.common.Common;
 import com.kh.Backend_miniproject.vo.ChatMessagesVO;
 import com.kh.Backend_miniproject.vo.MembersVO;
+import com.kh.Backend_miniproject.vo.UserDetailVO;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ChattingDAO {
     private Connection conn = null;
@@ -185,7 +189,7 @@ public class ChattingDAO {
         }
     }
 
-    // 🔥특정 사용자와의 대화 내용 조회
+    // ✨특정 사용자와의 대화 내용 조회
     public List<ChatMessagesVO> getChatMessages(int senderId, int receiverId) {
         List<ChatMessagesVO> list = new ArrayList<>();
         String sql = "SELECT * FROM CHAT_MESSAGES_TB WHERE (SENDER_ID_FK = ? AND RECEIVER_ID_FK = ?) OR (SENDER_ID_FK = ? AND RECEIVER_ID_FK = ?) ORDER BY CREATED_AT DESC";
@@ -223,7 +227,7 @@ public class ChattingDAO {
         return list;
     }
 
-    // 🔥안읽은 메시지 조회
+    // ✨안읽은 메시지 조회
     public List<ChatMessagesVO> getUnreadMessages(int memberNum) {
         List<ChatMessagesVO> list = new ArrayList<>();
         String sql = "SELECT * FROM CHAT_MESSAGES_TB WHERE RECEIVER_ID_FK = ? AND IS_READ = 'N'";
@@ -259,7 +263,7 @@ public class ChattingDAO {
         return list;
     }
 
-    // 🔥메시지를 읽었다고 알려주기
+    // ✨메시지를 읽었다고 알려주기
     public boolean markMessageAsRead(int messageId) {
         int result = 0;
         String sql = "UPDATE CHAT_MESSAGES_TB SET IS_READ = 'Y' WHERE RECEIVER_ID_FK = ?";
@@ -277,5 +281,45 @@ public class ChattingDAO {
             e.printStackTrace();
         }
         return result == 1;
+    }
+
+    // ✨상대방 프로필 사진, 등급뱃지, 닉네임, 개발 스택, 직업, 연차 가져오기
+    public UserDetailVO getUserDetailsByMemberNum(int memberNum) {
+        UserDetailVO uvo = null;
+        String sql = "SELECT M.PF_IMG, M.NICKNAME, M.JOB, M.YEAR, " +
+                "LISTAGG(T.STACK_ICON_URL, ',') WITHIN GROUP (ORDER BY T.STACK_NUM_PK) AS STACK_ICON_URLS, " +
+                "LISTAGG(MT.STACK_NUM_FK, ',') WITHIN GROUP (ORDER BY T.STACK_NUM_PK) AS STACK_NUM_FKS " +
+                "FROM MEMBERS_TB M " +
+                "JOIN MEMBER_TS_TB MT ON M.MEMBER_NUM_PK = MT.MEMBER_NUM_FK " +
+                "JOIN TECH_STACK_TB T ON MT.STACK_NUM_FK = T.STACK_NUM_PK " +
+                "WHERE M.MEMBER_NUM_PK = ? " +
+                "GROUP BY M.PF_IMG, M.NICKNAME, M.JOB, M.YEAR";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                uvo = new UserDetailVO();
+                uvo.setPfImg(rs.getString("PF_IMG"));
+                uvo.setNickname(rs.getString("NICKNAME"));
+                uvo.setJob(rs.getString("JOB"));
+                uvo.setYear(rs.getInt("YEAR"));
+                List<String> stackIconUrls = Arrays.asList(rs.getString("STACK_ICON_URLS").split(","));
+                uvo.setStackIconUrls(stackIconUrls);
+                List<Integer> stackNums = Arrays.stream(rs.getString("STACK_NUM_FKS").split(","))
+                        .map(Integer::parseInt).
+                        collect(Collectors.toList());
+                uvo.setStackNums(stackNums);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return uvo;
     }
 }

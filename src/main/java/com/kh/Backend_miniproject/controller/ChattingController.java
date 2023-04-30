@@ -2,6 +2,7 @@ package com.kh.Backend_miniproject.controller;
 import com.kh.Backend_miniproject.dao.ChattingDAO;
 import com.kh.Backend_miniproject.vo.ChatMessagesVO;
 import com.kh.Backend_miniproject.vo.MembersVO;
+import com.kh.Backend_miniproject.vo.UserDetailVO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -134,5 +135,16 @@ public class ChattingController {
         ChattingDAO cdao = new ChattingDAO();
         cdao.deleteChatRoom(chatNum);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // 🏓채팅 상대방 회원 정보 요청에 따른 응답
+    @GetMapping("/chat/{memberNum}/details")
+    public ResponseEntity<UserDetailVO> fetchUserDetailsByMemberNum(@PathVariable("memberNum") int memberNum) {
+        ChattingDAO cdao = new ChattingDAO();
+        UserDetailVO userDetails = cdao.getUserDetailsByMemberNum(memberNum);
+
+        if(userDetails == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else return new ResponseEntity<>(userDetails, HttpStatus.OK);
     }
 }
