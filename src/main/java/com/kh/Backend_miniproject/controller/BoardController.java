@@ -162,5 +162,13 @@ public class BoardController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+
+    // 게시판 별 게시물 수 조회
+    @GetMapping("/posts")
+    public int fetchTotalPosts(@RequestParam("boardNum") int boardNum) {
+        BoardDAO dao = new BoardDAO();
+        return dao.getTotalPosts(boardNum);
+    }
+
 }
 
