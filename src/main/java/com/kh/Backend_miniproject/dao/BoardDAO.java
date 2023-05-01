@@ -406,10 +406,10 @@ public class BoardDAO {
 
     // ✨댓글 보기(프로필이미지, 댓글작성자 닉네임, 내용, 작성날짜)
     public List<ReplyVO> viewReply(int postNum) {
-        String sql = "SELECT M.PF_IMG, M.NICKNAME, R.REPLY_CONTENT, R.WRITE_DATE " +
+        String sql = "SELECT M.PF_IMG, M.NICKNAME, R.REPLY_CONTENT " +
                 "FROM REPLY_TB R " +
                 "JOIN MEMBERS_TB M ON R.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
-                "WHERE R.POST_NUM_FK = ?" +
+                "WHERE R.POST_NUM_FK = ? " +
                 "ORDER BY R.REPLY_NUM_PK ASC";
 
         List<ReplyVO> list = new ArrayList<>();
@@ -428,7 +428,7 @@ public class BoardDAO {
                 rv.setPfImg(rs.getString("PF_IMG"));
                 rv.setNickname(rs.getString("NICKNAME"));
                 rv.setReplyContent(rs.getString("REPLY_CONTENT"));
-                rv.setWriteDate(rs.getDate("WRITE_DATE"));
+//                rv.setWriteDate(rs.getDate("WRITE_DATE"));
                 list.add(rv);
             }
 
