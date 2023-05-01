@@ -81,7 +81,7 @@ public class MainController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    // 🏓베스트 게시판 최근 게시글 5개 요청에 따른 응답
+    // ✅베스트 게시판 최근 게시글 5개 요청에 따른 응답
     @GetMapping("post/best-latest-5")
     public ResponseEntity<List<PostInfoVO>> fetchLatestBestPosts() {
         MainDao mdao = new MainDao();
@@ -89,7 +89,7 @@ public class MainController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    // 🏓Q&A 게시판 최근 게시글 5개 요청에 따른 응답
+    // ✅Q&A 게시판 최근 게시글 5개 요청에 따른 응답
     @GetMapping("post/qna-latest-5")
     public ResponseEntity<List<PostInfoVO>> fetchLatestQnAPosts() {
         MainDao mdao = new MainDao();
