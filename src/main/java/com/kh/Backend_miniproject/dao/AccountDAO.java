@@ -18,24 +18,25 @@ public class AccountDAO {
 
     // 📍로그인 체크 - 경미 테스트
     public boolean isLoginValid(String email, String pwd) {
-        String sql = "SELECT * FROM MEMBERS_TB WHERE EMAIL = " + "'" + email + "'";
+        String sql = "SELECT * FROM MEMBERS_TB WHERE EMAIL = ?";
         try {
             conn = Common.getConnection();
-            stmt = conn.createStatement();
-            rs = stmt.executeQuery(sql);
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, email);
+            rs = pstmt.executeQuery();
 
             while(rs.next()) {
                 String sqlEmail = rs.getString("EMAIL");
                 String sqlPwd = rs.getString("PWD");
                 if(email.equals(sqlEmail) && pwd.equals(sqlPwd)) {
                     Common.close(rs);
-                    Common.close(stmt);
+                    Common.close(pstmt);
                     Common.close(conn);
                     return true;
                 }
             }
             Common.close(rs);
-            Common.close(stmt);
+            Common.close(pstmt);
             Common.close(conn);
         } catch(Exception e) {
             e.printStackTrace();
