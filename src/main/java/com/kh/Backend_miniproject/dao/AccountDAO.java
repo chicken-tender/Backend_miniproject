@@ -1,6 +1,10 @@
 package com.kh.Backend_miniproject.dao;
 import com.kh.Backend_miniproject.common.Common;
 import com.kh.Backend_miniproject.vo.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -146,6 +150,27 @@ public class AccountDAO {
     }
 
     // 🔥
+
+
+    // [5.1 추가] GET🔑 회원가입시 닉네임 중복확인
+    public boolean findMemberByNickname(String nickname) {
+        boolean result = false;
+        String sql = "SELECT * FROM MEMBERS_TB WHERE NICKNAME = ?";
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, nickname);
+            ResultSet resultSet = pstmt.executeQuery();
+            result = !resultSet.next();
+
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
     // 🔐회원 정보 read
     public SignUpVO readMemberInfoByNumber(int memberNum) {
