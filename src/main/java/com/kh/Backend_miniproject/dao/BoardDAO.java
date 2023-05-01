@@ -16,12 +16,37 @@ public class BoardDAO {
     private ResultSet rs = null;
     private PreparedStatement pstmt = null;
 
+    //✨총 게시물 수 구하기
+    public int getTotalPosts(int boardNum) {
+        int totalPosts = 0;
+        String sql = "SELECT COUNT(*) FROM POST_TB WHERE BOARD_NUM_FK = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, boardNum);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                totalPosts = rs.getInt(1);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return totalPosts;
+    }
+
 
     // ✨일반 게시판 글 목록 (한 페이지당 8개씩)
     public List<PostVO> generalPostList(int boardNum, int pageNum) {
         int numPerPage = 8; // 페이지 당 보여주는 항목 개수
         List<PostVO> list = new ArrayList<>();
-        int startRow = (pageNum - 1) * numPerPage; // 만약 pageNum이 1이면, 시작행은 0, 끝 행은 7
+        int startRow = (pageNum - 1) * numPerPage + 1;
         int endRow = pageNum * numPerPage;
 
         String sql ="SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.WRITE_DATE, P.VIEW_COUNT " +
@@ -33,7 +58,7 @@ public class BoardDAO {
                     "   WHERE BOARD_NUM_FK = ? " + // 먼저, 게시판 번호가 일치하는 게시물을 WRITE_DATE 기준으로 내림차순 정렬
                     "   ORDER BY WRITE_DATE DESC " +
                     "  ) " +
-                    "   WHERE ROWNUM <= ?" + ////각 게시물에 일련 번호를 부여하고, 주어진 페이지의 마지막 행 번호(endRow)보다 작거나 같은 게시물만 선택
+                    "   WHERE ROWNUM <= ?" + //각 게시물에 일련 번호를 부여하고, 주어진 페이지의 마지막 행 번호(endRow)보다 작거나 같은 게시물만 선택
                     ") P " +
                     "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
                     "WHERE P.RN BETWEEN ? AND ? " + //주어진 페이지 시작 행 번호(startRow)와 마지막 행 번호(endRow) 사이에 있는 게시물만 선택
@@ -45,8 +70,9 @@ public class BoardDAO {
             pstmt = conn.prepareStatement(sql);
 
             pstmt.setInt(1, boardNum);
-            pstmt.setInt(2, startRow);
-            pstmt.setInt(3, endRow);
+            pstmt.setInt(2, endRow);
+            pstmt.setInt(3, startRow);
+            pstmt.setInt(4,endRow);
 
             rs = pstmt.executeQuery();
 
@@ -140,7 +166,7 @@ public class BoardDAO {
     // ✨해당 게시판 게시글 검색
     public List<PostVO> searchPosts(int boardNum, int pageNum, String keyword) {
         int numPerPage = 8;
-        int startRow = (pageNum - 1) * numPerPage;
+        int startRow = (pageNum - 1) * numPerPage + 1;
         int endRow = pageNum * numPerPage;
 
         List<PostVO> list = new ArrayList<>();
@@ -166,11 +192,13 @@ public class BoardDAO {
 
             String kw = "%" + keyword + "%";
             pstmt.setInt(1, boardNum);
-            pstmt.setString(2, kw);
+            pstmt.setInt(2, endRow);
             pstmt.setString(3, kw);
             pstmt.setString(4, kw);
-            pstmt.setInt(5, startRow);
-            pstmt.setInt(6, endRow);
+            pstmt.setString(5, kw);
+            pstmt.setInt(6, startRow);
+            pstmt.setInt(7, endRow);
+
 
 
             rs = pstmt.executeQuery();
