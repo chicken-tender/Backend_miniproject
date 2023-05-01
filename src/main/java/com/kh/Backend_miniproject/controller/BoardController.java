@@ -32,8 +32,6 @@ public class BoardController {
     }
 
 
-
-
     // ✏️포토폴리오게시판 목록 조회
     @GetMapping("/Portfolio")
     public ResponseEntity<List<PostVO>> fetchPortfolioList(@RequestParam("pageNum") int pageNum) {
@@ -59,6 +57,7 @@ public class BoardController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+
     // ✏️ 상세글 보기
     @GetMapping("/{boardName}/post/{postNum}")
     public ResponseEntity<List<PostVO>> fetchViewPostDetail(@PathVariable("boardName") String boardName, @PathVariable("postNum") int postNum) {
@@ -73,8 +72,8 @@ public class BoardController {
 
 
     // ✏️ 댓글 보기
-    @GetMapping("/post/{postNum}/reply")
-    public ResponseEntity<List<ReplyVO>> fetchViewReply(@PathVariable("postNum") int postNum) {
+    @GetMapping("/reply")
+    public ResponseEntity<List<ReplyVO>> fetchViewReply(@RequestParam("postNum") int postNum) {
         BoardDAO dao = new BoardDAO();
         List<ReplyVO> replies = dao.viewReply(postNum);
         if (replies.isEmpty()) {
@@ -104,6 +103,25 @@ public class BoardController {
         return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
+
+    // ✏️게시글 수정
+    @PutMapping("/post")
+    public ResponseEntity<String> updatePost(@RequestBody PostVO post) {
+        BoardDAO dao = new BoardDAO();
+        dao.updatePost(post);
+        return new ResponseEntity<>("True", HttpStatus.OK);
+    }
+
+
+    // ✏️게시글 삭제
+    @DeleteMapping("/post/{postNum}")
+    public ResponseEntity<String> fetchDeletePost(@PathVariable int postNum) {
+        BoardDAO dao = new BoardDAO();
+        dao.deletePost(postNum);
+        return new ResponseEntity<>("True", HttpStatus.OK);
+    }
+
+
     // ✏️ 댓글 작성
     @PostMapping("/reply")
     public ResponseEntity<String> fetchWriteReply(@RequestBody Map<String, Object> contentData) {
@@ -116,7 +134,7 @@ public class BoardController {
     }
 
     // ✏️ 댓글 수정
-    @PostMapping("/reply/edit")
+    @PutMapping("/reply")
     public ResponseEntity<String> updateReply(@RequestBody Map<String, Object> payload) {
         int replyNum = (int) payload.get("replyNum");
         String content = (String) payload.get("content");
@@ -126,31 +144,15 @@ public class BoardController {
         return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
+
     // ✏️댓글 삭제
-    @DeleteMapping("/reply/{replyNum}")
-    public ResponseEntity<String> deleteReply(@PathVariable int replyNum) {
+    @DeleteMapping("/reply")
+    public ResponseEntity<String> deleteReply(@RequestParam("replyNum") int replyNum) {
         BoardDAO dao = new BoardDAO();
         dao.deleteReply(replyNum);
         return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
-
-
-    // ✏️게시글 수정
-    @PostMapping("/post/edit")
-    public ResponseEntity<String> updatePost(@RequestBody PostVO post) {
-        BoardDAO dao = new BoardDAO();
-        dao.updatePost(post);
-        return new ResponseEntity<>("True", HttpStatus.OK);
-    }
-
-    // ✏️게시글 삭제
-    @DeleteMapping("/post/{postNum}")
-    public ResponseEntity<String> fetchDeletePost(@PathVariable int postNum) {
-        BoardDAO dao = new BoardDAO();
-        dao.deletePost(postNum);
-        return new ResponseEntity<>("True", HttpStatus.OK);
-    }
 
     // ❤ 추천수 업데이트
     @PostMapping("/like/{postNum}")
