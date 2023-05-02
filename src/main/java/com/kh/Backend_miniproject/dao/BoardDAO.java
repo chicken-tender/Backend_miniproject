@@ -117,30 +117,36 @@ public class BoardDAO {
     public List<PostVO> portfolioList(int pageNum) {
         int numPerPage = 6;
         List<PostVO> list = new ArrayList<>();
-        int startRow = (pageNum - 1) * numPerPage ;
-        int endRow = pageNum * numPerPage;
+        int startRow = (pageNum - 1) * numPerPage + 1;
+        int endRow = pageNum * numPerPage ;
 
-        String sql = "SELECT POST_NUM_PK, TITLE, IMG_URL " +
-                     "FROM ( " +
-                     "   SELECT POST_NUM_PK, TITLE, IMG_URL, ROWNUM AS RNUM " +
-                     "   FROM ( " +
-                     "       SELECT POST_NUM_PK, TITLE, IMG_URL " +
-                     "       FROM POST_TB " +
-                     "       WHERE BOARD_NUM_FK = 4 " +
-                     "       ORDER BY WRITE_DATE DESC " +
-                     "   ) " +
-                     ") " +
-                     "WHERE RNUM BETWEEN ? AND ? " +
-                     "ORDER BY WRITE_DATE DESC";
+        String sql = "SELECT P.POST_NUM_PK, P.TITLE, P.IMG_URL, M.PF_IMG, M.NICKNAME, P.VIEW_COUNT, P.LIKE_COUNT " +
+                "FROM POST_TB P " +
+                "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
+                "WHERE P.BOARD_NUM_FK = 4 AND P.POST_NUM_PK IN (" +
+                "SELECT POST_NUM_PK " +
+                "FROM (" +
+                "SELECT POST_NUM_PK, ROWNUM AS RNUM " +
+                "FROM (" +
+                "   SELECT POST_NUM_PK " +
+                "   FROM POST_TB " +
+                "   WHERE BOARD_NUM_FK = 4 " +
+                "   ORDER BY POST_NUM_PK DESC " +
+                " ) " +
+                "  WHERE ROWNUM <= ? " +
+                ") " +
+                "WHERE RNUM BETWEEN ? AND ? " +
+                ") " +
+                "ORDER BY P.POST_NUM_PK DESC";
 
 
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
 
-
-            pstmt.setInt(1, startRow);
-            pstmt.setInt(2, endRow);
+            pstmt.setInt(1, endRow);
+            pstmt.setInt(2, startRow);
+            pstmt.setInt(3, endRow);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -150,6 +156,7 @@ public class BoardDAO {
                 pv.setLikeCount(rs.getInt("LIKE_COUNT"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
                 pv.setNickname(rs.getString("NICKNAME"));
+                pv.setPfImg(rs.getString("PF_IMG"));
                 list.add(pv);
             }
 
@@ -250,7 +257,7 @@ public class BoardDAO {
                 post.setBoardName(rs.getString("BOARD_NAME"));
                 post.setTitle(rs.getString("TITLE"));
                 post.setNickname(rs.getString("NICKNAME"));
-                post.setImgUrl(rs.getString("PF_IMG"));
+                post.setPfImg(rs.getString("PF_IMG"));
                 post.setContent(rs.getString("CONTENT"));
                 post.setTag(rs.getString("TAG"));
                 post.setImgUrl(rs.getString("IMG_URL"));
