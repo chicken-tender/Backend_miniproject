@@ -1,5 +1,6 @@
 package com.kh.Backend_miniproject.controller;
 import com.kh.Backend_miniproject.dao.AccountDAO;
+import com.kh.Backend_miniproject.dao.MainDao;
 import com.kh.Backend_miniproject.vo.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,6 +78,15 @@ public class AccountController {
         AccountDAO ado = new AccountDAO();
         return new ResponseEntity<>(ado.findMemberByNickname(nickname), HttpStatus.OK);
     }
+
+    // [5.2 추가] GET🔑 전체 기술스택 리스트 호출
+    @GetMapping("/techstacks/all")
+    public ResponseEntity<List<TechStackVO>> fetchAllTechStacks() {
+        AccountDAO adao = new AccountDAO();
+        return new ResponseEntity<>(adao.getAllTechStacks(), HttpStatus.OK);
+    }
+
+
 
     // GET🔑(마이페이지) 회원의 최근 게시글 5개 (카테고리, 제목, 본문, 날짜)
     @GetMapping("/members/my-5-latest-posts")
