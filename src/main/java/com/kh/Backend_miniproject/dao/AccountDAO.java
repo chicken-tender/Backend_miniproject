@@ -173,6 +173,34 @@ public class AccountDAO {
         return result;
     }
 
+    // [5.2 추가] GET🔑 기술스택 전체 호출
+    public List<TechStackVO> getAllTechStacks() {
+        List<TechStackVO> list = new ArrayList<>();
+        String sql = "SELECT * FROM TECH_STACK_TB";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                TechStackVO tsvo = new TechStackVO();
+                tsvo.setStackNum(rs.getInt("STACK_NUM_PK"));
+                tsvo.setStackIconUrl(rs.getString("STACK_ICON_URL"));
+                tsvo.setStackName(rs.getString("STACK_NAME"));
+                list.add(tsvo);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
+
     // 🔐회원 정보 read
     public SignUpVO readMemberInfoByNumber(int memberNum) {
         SignUpVO vo = null;
