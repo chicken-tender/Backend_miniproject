@@ -82,6 +82,30 @@ public class ChattingDAO {
         return list;
     }
 
+    // 🔴멘티 회원번호 get
+    public int getMenteeMemberNumByEmail(String menteeEmail) {
+        int menteeMembernum = 0;
+        String sql = "SELECT MEMBER_NUM_PK FROM MEMBERS_TB WHERE EMAIL = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, menteeEmail);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                menteeMembernum = rs.getInt("MEMBER_NUM_PK");
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return menteeMembernum;
+    }
+
     // ✨매칭 성공시 멘티 프로필 사진, 닉네임 get
     public List<MembersVO> getMenteeInfoByEmail(String email) {
         List<MembersVO> list = new ArrayList<>();

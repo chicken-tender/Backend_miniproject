@@ -31,6 +31,20 @@ public class ChattingController {
         }
     }
 
+    // 🔴멘티 회원번호 요청에 대한 응답
+    @PostMapping("/mentee-memberNum")
+    public ResponseEntity<Integer> fetchMenteeMemberNum(@RequestBody Map<String, String> menteeData) {
+        String menteeEmail = menteeData.get("email");
+        ChattingDAO cdao = new ChattingDAO();
+        int menteeMemberNum = cdao.getMenteeMemberNumByEmail(menteeEmail);
+
+        if (menteeMemberNum == 0) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(menteeMemberNum, HttpStatus.OK);
+        }
+    }
+
     // 🏓매칭 성공에 따른 멘티 프로필 사진, 닉네임 요청에 대한 응답
     @PostMapping("/mentee")
     public ResponseEntity<List<MembersVO>> fetchMenteeInfo(@RequestBody Map<String, String> emailData) {
