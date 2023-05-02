@@ -151,6 +151,7 @@ public class BoardDAO {
 
             while (rs.next()) {
                 PostVO pv = new PostVO();
+                pv.setPostNum(rs.getInt("POST_NUM_PK"));
                 pv.setTitle(rs.getString("TITLE"));
                 pv.setImgUrl(rs.getString("IMG_URL"));
                 pv.setLikeCount(rs.getInt("LIKE_COUNT"));
@@ -232,12 +233,12 @@ public class BoardDAO {
     }
 
     // ✨상세글 보기 (게시판 이름, 제목, 프로필사진, 작성자닉네임, 내용, 태그, 이미지, 작성날짜, 조회수, 추천수)
-    public List<PostVO> viewPostDetail(int boardNum, int postNum) {
+    public List<PostVO> viewPostDetail(int postNum) {
         String sql = "SELECT B.BOARD_NAME, P.TITLE, M.PF_IMG, M.NICKNAME, P.CONTENT, P.TAG, P.IMG_URL, P.WRITE_DATE, P.VIEW_COUNT, P.LIKE_COUNT " +
                 "FROM POST_TB P " +
                 "JOIN BOARD_TB B ON P.BOARD_NUM_FK = B.BOARD_NUM_PK " +
                 "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
-                "WHERE P.BOARD_NUM_FK = ? AND P.POST_NUM_PK = ? " +
+                "WHERE P.POST_NUM_PK = ? " +
                 "ORDER BY POST_NUM_PK DESC";
 
         List<PostVO> list = new ArrayList<PostVO>();
@@ -248,8 +249,7 @@ public class BoardDAO {
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, boardNum);
-            pstmt.setInt(2, postNum);
+            pstmt.setInt(1, postNum);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {

@@ -59,15 +59,14 @@ public class BoardController {
 
 
     // ✏️ 상세글 보기
-    @GetMapping("/{boardName}/post/{postNum}")
-    public ResponseEntity<List<PostVO>> fetchViewPostDetail(@PathVariable("boardName") String boardName, @PathVariable("postNum") int postNum) {
+    @GetMapping("/post/{postNum}")
+    public ResponseEntity<List<PostVO>> fetchViewPostDetail( @PathVariable("postNum") int postNum) {
         BoardDAO dao = new BoardDAO();
-        int boardNum = dao.getBoardNum(boardName);
-        if (boardNum == 0) {
+        List<PostVO> posts = dao.viewPostDetail(postNum);
+        if (posts.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        List<PostVO> list = dao.viewPostDetail(boardNum, postNum);
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
 
