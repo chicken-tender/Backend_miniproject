@@ -19,12 +19,12 @@ import java.util.Map;
 public class ChattingController {
     // 🏓채팅 시작 요청에 대한 응답 (채팅방 저장)
     @PostMapping("/chat")
-    public ResponseEntity<Map<String, Integer>> saveChatRoom(@RequestBody Map<String, Integer> memberNumData) {
+    public ResponseEntity<Integer> saveChatRoom(@RequestBody Map<String, Integer> memberNumData) {
         System.out.println("memberNumData: " + memberNumData);
         int mentorMemberNum = memberNumData.get("mentorMemberNum");
         int menteeMemberNum = memberNumData.get("menteeMemberNum");
         ChattingDAO cdao = new ChattingDAO();
-        Map<String, Integer> result = cdao.createChatRoom(mentorMemberNum, menteeMemberNum);
+        Integer result = cdao.createChatRoom(mentorMemberNum, menteeMemberNum);
 
         if(result != null) {
             return new ResponseEntity<>(result, HttpStatus.CREATED);
@@ -46,7 +46,7 @@ public class ChattingController {
         int messageType = (Integer) data.get("messageType");
 
         String createdAtStr = (String) data.get("createdAt");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         LocalDateTime createdAtLdt = LocalDateTime.parse(createdAtStr, formatter);
         Timestamp createdAt = Timestamp.valueOf(createdAtLdt);
         Character isRead = ((String) data.get("isRead")).charAt(0);

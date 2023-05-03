@@ -15,14 +15,15 @@ public class ChattingDAO {
     private PreparedStatement pstmt = null;
     private ResultSet rs = null;
     // ✨멘토 멘티 매칭 후 생성된 채팅방 저장
-    public Map<String, Integer> createChatRoom(int mentorMemberNum, int menteeMemberNum) {
+    public Integer createChatRoom(int mentorMemberNum, int menteeMemberNum) {
         int result = 0;
+        Integer chatNum = null;
         String sql = "INSERT INTO CHAT_ROOM_TB (CHAT_NUM_PK, MENTOR_FK, MENTEE_FK) " +
                 "VALUES (seq_CHAT_NUM.NEXTVAL, ?, ?)";
         Map<String, Integer> rm = null;
         try {
             conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql, new String[] {"CHAT_NUM_PK"});
+            pstmt = conn.prepareStatement(sql, new String[]{"CHAT_NUM_PK"});
             pstmt.setInt(1, mentorMemberNum);
             pstmt.setInt(2, menteeMemberNum);
             result = pstmt.executeUpdate();
@@ -30,10 +31,7 @@ public class ChattingDAO {
             if(result == 1) {
                 ResultSet generatedKeys = pstmt.getGeneratedKeys();
                 if (generatedKeys.next()) {
-                    rm = new HashMap<>();
-                    rm.put("CHAT_NUM_PK", generatedKeys.getInt(1));
-                    rm.put("MENTOR_FK", mentorMemberNum);
-                    rm.put("MENTEE_FK", menteeMemberNum);
+                    chatNum = generatedKeys.getInt(1);
                 }
             }
 
@@ -42,7 +40,7 @@ public class ChattingDAO {
         } catch(Exception e) {
             e.printStackTrace();
         }
-        return rm;
+        return chatNum;
     }
 
     // ✨채팅 메시지 저장
