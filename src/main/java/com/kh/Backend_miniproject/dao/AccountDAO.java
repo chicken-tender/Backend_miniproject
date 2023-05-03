@@ -200,6 +200,50 @@ public class AccountDAO {
     }
 
 
+    // [5.3 추가] GET🔑입력받은 닉네임으로 사용자의 이메일 호출
+    public String getMemberEmailByNickname(String nickname) {
+        String memberEmail = "";
+        String sql = "SELECT EMAIL FROM MEMBERS_TB WHERE NICKNAME = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, nickname);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                memberEmail = rs.getString("EMAIL");
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return memberEmail;
+    }
+
+    // [5.3 추가] GET🔑 입력받은 닉네임&이메일로 회원 존재 여부 확인
+    public boolean getMemberByNicknameAndEmail(String nickname, String email) {
+        boolean result = false;
+        String sql = "SELECT * FROM MEMBERS_TB WHERE NICKNAME = ? AND EMAIL = ?";
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, nickname);
+            pstmt.setString(2, email);
+            ResultSet resultSet = pstmt.executeQuery();
+            result = resultSet.next();
+
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
     // 🔐회원 정보 read
     public SignUpVO readMemberInfoByNumber(int memberNum) {

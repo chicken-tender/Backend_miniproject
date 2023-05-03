@@ -86,6 +86,20 @@ public class AccountController {
         return new ResponseEntity<>(adao.getAllTechStacks(), HttpStatus.OK);
     }
 
+    // [5.3 추가] GET🔑 입력받은 닉네임으로 사용자의 이메일 호출
+    @GetMapping("/findaccount/check")
+    public ResponseEntity<String> fetchMemberEmailByNickname(@RequestParam String nickname) {
+        AccountDAO adao = new AccountDAO();
+        return new ResponseEntity<>(adao.getMemberEmailByNickname(nickname), HttpStatus.OK);
+    }
+
+    // [5.3 추가] GET🔑 입력받은 닉네임&이메일로 회원 존재 여부 확인
+    @GetMapping("/check/ismember")
+    public ResponseEntity<Boolean> fetchIsMemberByNicknameAndEmail(@RequestParam String nickname, String email) {
+        AccountDAO ado = new AccountDAO();
+        return new ResponseEntity<>(ado.getMemberByNicknameAndEmail(nickname, email), HttpStatus.OK);
+    }
+
 
 
     // GET🔑(마이페이지) 회원의 최근 게시글 5개 (카테고리, 제목, 본문, 날짜)
