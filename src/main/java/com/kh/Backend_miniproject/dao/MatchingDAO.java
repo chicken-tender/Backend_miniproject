@@ -30,6 +30,11 @@ public class MatchingDAO {
                 "  WHERE m2.MEMBER_NUM_FK = ? " +
                 "    AND m1.MEMBER_NUM_FK != m2.MEMBER_NUM_FK " +
                 "    AND mem.JOB NOT IN ('학생', '구직자') " +
+                "    AND NOT EXISTS ( " +
+                "      SELECT 1 " +
+                "      FROM CHAT_ROOM_TB cr " +
+                "      WHERE cr.MENTOR_FK = m1.MEMBER_NUM_FK " +
+                "    ) " +
                 "  GROUP BY m1.MEMBER_NUM_FK " +
                 "  HAVING COUNT(*) >= 2 " +
                 "  ORDER BY DBMS_RANDOM.RANDOM " +

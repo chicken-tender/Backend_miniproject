@@ -3,6 +3,7 @@ import com.kh.Backend_miniproject.dao.ChattingDAO;
 import com.kh.Backend_miniproject.dao.MatchingDAO;
 import com.kh.Backend_miniproject.vo.ChatMessagesVO;
 import com.kh.Backend_miniproject.vo.MembersVO;
+import com.kh.Backend_miniproject.vo.MentorMenteeVO;
 import com.kh.Backend_miniproject.vo.UserDetailVO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class ChattingController {
-    // 🏓채팅 시작 요청에 대한 응답 (채팅방 저장)
+    // ✅채팅 시작 요청에 대한 응답 (채팅방 저장)
     @PostMapping("/chat")
     public ResponseEntity<Integer> saveChatRoom(@RequestBody Map<String, Integer> memberNumData) {
         System.out.println("memberNumData: " + memberNumData);
@@ -33,7 +34,7 @@ public class ChattingController {
         }
     }
 
-    // 🏓채팅 메시지 전송
+    // ✅채팅 메시지 전송
     @PostMapping("/chat/message")
     public ResponseEntity<Boolean> sendChatMessage(@RequestBody Map<String, Object> data) {
         ChattingDAO cdao = new ChattingDAO();
@@ -58,6 +59,17 @@ public class ChattingController {
         } else {
             return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    // 🤮매칭된 모든 회원 번호 전송
+    @GetMapping("/mentor-mentee")
+    public ResponseEntity<List<MentorMenteeVO>> fetchAllMentorMenteeNum() {
+        ChattingDAO cdao = new ChattingDAO();
+        List<MentorMenteeVO> list = cdao.getAllMentorMenteeNum();
+
+        if(list == null || list.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     // 🏓채팅 메시지 조회

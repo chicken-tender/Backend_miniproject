@@ -1,8 +1,8 @@
 package com.kh.Backend_miniproject.dao;
 import com.kh.Backend_miniproject.common.Common;
 import com.kh.Backend_miniproject.vo.ChatMessagesVO;
+import com.kh.Backend_miniproject.vo.MentorMenteeVO;
 import com.kh.Backend_miniproject.vo.UserDetailVO;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +14,7 @@ public class ChattingDAO {
     private Connection conn = null;
     private PreparedStatement pstmt = null;
     private ResultSet rs = null;
-    // ✨멘토 멘티 매칭 후 생성된 채팅방 저장
+    // ✅멘토 멘티 매칭 후 생성된 채팅방 저장
     public Integer createChatRoom(int mentorMemberNum, int menteeMemberNum) {
         int result = 0;
         Integer chatNum = null;
@@ -43,7 +43,7 @@ public class ChattingDAO {
         return chatNum;
     }
 
-    // ✨채팅 메시지 저장
+    // ✅채팅 메시지 저장
     public boolean saveChatMessage(int chatNum, int senderId, int receiverId, String message, String codeBlock, int messageType, Timestamp createdAt, Character isRead) {
         int result = 0;
         String sql = "INSERT INTO CHAT_MESSAGES_TB (MSG_NUM_PK, CHAT_NUM_FK, SENDER_ID_FK, RECEIVER_ID_FK, MESSAGE, CODE_BLOCK, MSG_TYPE, CREATED_AT, IS_READ) " +
@@ -69,6 +69,32 @@ public class ChattingDAO {
         }
         if(result == 1) return true;
         else return false;
+    }
+
+    // 🤮채팅이 매칭된 회원번호 가져오기
+    public List<MentorMenteeVO> getAllMentorMenteeNum() {
+        List<MentorMenteeVO> list = new ArrayList<>();
+
+        String sql = "SELECT MENTOR_FK, MENTEE_FK FROM CHAT_ROOM_TB";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                MentorMenteeVO mmvo = new MentorMenteeVO();
+                mmvo.setMentorNum(rs.getInt("MENTOR_FK"));
+                mmvo.setMenteeNum(rs.getInt("MENTEE_FK"));
+                list.add(mmvo);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     // ✨대화 종료시 대화방 삭제
