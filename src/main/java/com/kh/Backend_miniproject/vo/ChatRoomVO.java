@@ -1,11 +1,9 @@
 package com.kh.Backend_miniproject.vo;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class ChatRoomVO {
-    private int chatNum;
-    private int mentor;
-    private int mentee;
+    private Integer chatNum;
+    private Integer mentor;
+    private Integer mentee;
 }
