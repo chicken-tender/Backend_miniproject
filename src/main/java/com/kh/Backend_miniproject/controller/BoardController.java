@@ -1,7 +1,9 @@
 package com.kh.Backend_miniproject.controller;
 
 
+import com.kh.Backend_miniproject.dao.AccountDAO;
 import com.kh.Backend_miniproject.dao.BoardDAO;
+import com.kh.Backend_miniproject.dao.MainDao;
 import com.kh.Backend_miniproject.vo.BoardVO;
 import com.kh.Backend_miniproject.vo.PostVO;
 import com.kh.Backend_miniproject.vo.ReplyVO;
@@ -169,5 +171,18 @@ public class BoardController {
         return dao.getTotalPosts(boardNum);
     }
 
+     // 이메일로 회원번호 get
+    @PostMapping("/member/number")
+    public ResponseEntity<Integer> fetchMemberNumber(@RequestBody Map<String, String> emailData) {
+        String email = emailData.get("email");
+        AccountDAO adao = new AccountDAO();
+        int memberNum = adao.getMemberNumbyEmail(email);
+        if (memberNum == 0) {
+            return new ResponseEntity<>(memberNum, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(memberNum, HttpStatus.OK);
+    }
 }
+
+
 

@@ -49,20 +49,20 @@ public class BoardDAO {
         int startRow = (pageNum - 1) * numPerPage + 1;
         int endRow = pageNum * numPerPage;
 
-        String sql ="SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.WRITE_DATE, P.VIEW_COUNT " +
-                    "FROM (" +
-                    "  SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT, ROWNUM AS RN " +
-                    "  FROM ( " +
-                    "   SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT " +
-                    "   FROM POST_TB " +
-                    "   WHERE BOARD_NUM_FK = ? " + // 먼저, 게시판 번호가 일치하는 게시물을 WRITE_DATE 기준으로 내림차순 정렬
-                    "   ORDER BY WRITE_DATE DESC " +
-                    "  ) " +
-                    "   WHERE ROWNUM <= ?" + //각 게시물에 일련 번호를 부여하고, 주어진 페이지의 마지막 행 번호(endRow)보다 작거나 같은 게시물만 선택
-                    ") P " +
-                    "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
-                    "WHERE P.RN BETWEEN ? AND ? " + //주어진 페이지 시작 행 번호(startRow)와 마지막 행 번호(endRow) 사이에 있는 게시물만 선택
-                    "ORDER BY WRITE_DATE DESC";
+        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.WRITE_DATE, P.VIEW_COUNT " +
+                "FROM (" +
+                "  SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT, ROWNUM AS RN " +
+                "  FROM ( " +
+                "   SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT " +
+                "   FROM POST_TB " +
+                "   WHERE BOARD_NUM_FK = ? " + // 먼저, 게시판 번호가 일치하는 게시물을 WRITE_DATE 기준으로 내림차순 정렬
+                "   ORDER BY WRITE_DATE DESC " +
+                "  ) " +
+                "   WHERE ROWNUM <= ?" + //각 게시물에 일련 번호를 부여하고, 주어진 페이지의 마지막 행 번호(endRow)보다 작거나 같은 게시물만 선택
+                ") P " +
+                "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
+                "WHERE P.RN BETWEEN ? AND ? " + //주어진 페이지 시작 행 번호(startRow)와 마지막 행 번호(endRow) 사이에 있는 게시물만 선택
+                "ORDER BY WRITE_DATE DESC";
 
 
         try {
@@ -72,7 +72,7 @@ public class BoardDAO {
             pstmt.setInt(1, boardNum);
             pstmt.setInt(2, endRow);
             pstmt.setInt(3, startRow);
-            pstmt.setInt(4,endRow);
+            pstmt.setInt(4, endRow);
 
             rs = pstmt.executeQuery();
 
@@ -118,7 +118,7 @@ public class BoardDAO {
         int numPerPage = 6;
         List<PostVO> list = new ArrayList<>();
         int startRow = (pageNum - 1) * numPerPage + 1;
-        int endRow = pageNum * numPerPage ;
+        int endRow = pageNum * numPerPage;
 
         String sql = "SELECT P.POST_NUM_PK, P.TITLE, P.IMG_URL, M.PF_IMG, M.NICKNAME, P.VIEW_COUNT, P.LIKE_COUNT " +
                 "FROM POST_TB P " +
@@ -179,11 +179,11 @@ public class BoardDAO {
 
         List<PostVO> list = new ArrayList<>();
 
-        String sql ="SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.WRITE_DATE, P.VIEW_COUNT " +
+        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.WRITE_DATE, P.VIEW_COUNT " +
                 "FROM (" +
-                "  SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT, ROWNUM AS RN " +
+                "  SELECT POST_NUM_PK, TITLE,  MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT, ROWNUM AS RN " +
                 "  FROM ( " +
-                "   SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT " +
+                "   SELECT POST_NUM_PK, TITLE, MEMBER_NUM_FK, WRITE_DATE, VIEW_COUNT, CONTENT, TAG " +
                 "   FROM POST_TB " +
                 "   WHERE BOARD_NUM_FK = ? " +
                 "   ORDER BY WRITE_DATE DESC " +
@@ -208,7 +208,6 @@ public class BoardDAO {
             pstmt.setInt(7, endRow);
 
 
-
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -219,6 +218,7 @@ public class BoardDAO {
                 pv.setNickname(rs.getString("NICKNAME"));
                 pv.setWriteDate(rs.getDate("WRITE_DATE"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
+
 
                 list.add(pv);
             }
@@ -463,7 +463,6 @@ public class BoardDAO {
                 rv.setPfImg(rs.getString("PF_IMG"));
                 rv.setNickname(rs.getString("NICKNAME"));
                 rv.setReplyContent(rs.getString("REPLY_CONTENT"));
-//                rv.setWriteDate(rs.getDate("WRITE_DATE"));
                 list.add(rv);
             }
 
