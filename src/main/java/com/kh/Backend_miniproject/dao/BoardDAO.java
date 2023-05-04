@@ -280,16 +280,18 @@ public class BoardDAO {
 
 
     // ✨ 게시글 작성
-    public void writePost(PostVO post) {
+    public int writePost(PostVO post) {
         String sql = "INSERT INTO POST_TB (POST_NUM_PK, TITLE, CONTENT, TAG, IMG_URL, VIEW_COUNT, LIKE_COUNT, WRITE_DATE, BOARD_NUM_FK, MEMBER_NUM_FK) " +
                 "VALUES (seq_POST_NUM.NEXTVAL, ?, ?, ?, ?, 0, 0, SYSDATE, ?, ?)";
 
         Connection conn = null;
         PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int postNum = 0;
 
         try {
             conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
+            pstmt = conn.prepareStatement(sql, new String[] {"POST_NUM_PK"});
 
             pstmt.setString(1, post.getTitle());
             pstmt.setString(2, post.getContent());
@@ -298,15 +300,24 @@ public class BoardDAO {
             pstmt.setInt(5, post.getBoardNum());
             pstmt.setInt(6, post.getMemberNum());
             pstmt.executeUpdate();
+            rs = pstmt.getGeneratedKeys();
+
+            if (rs.next()) {
+                postNum = rs.getInt(1);
+            }
 
             Common.close(pstmt);
             Common.close(conn);
+            Common.close(rs);
 
         } catch (Exception e) {
             e.printStackTrace();
 
         }
+
+        return postNum;
     }
+
 
     // ✨ 게시글 수정
     public void updatePost(PostVO post) {
