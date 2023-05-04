@@ -71,7 +71,7 @@ public class ChattingDAO {
         else return false;
     }
 
-    // 🤮채팅이 매칭된 회원번호 가져오기
+    // ✅채팅이 매칭된 회원번호 가져오기
     public List<MentorMenteeVO> getAllMentorMenteeNum() {
         List<MentorMenteeVO> list = new ArrayList<>();
 
@@ -87,6 +87,65 @@ public class ChattingDAO {
                 mmvo.setMentorNum(rs.getInt("MENTOR_FK"));
                 mmvo.setMenteeNum(rs.getInt("MENTEE_FK"));
                 list.add(mmvo);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // 🤮로그인 한 유저가 속한 채팅방 가져오기
+    public int getChatRoomByMemberNum(int memberNum) {
+        int chatRoom = 0;
+        String sql = "SELECT CHAT_NUM_PK FROM CHAT_ROOM_TB WHERE MENTOR_FK = ? OR MENTEE_FK = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
+            pstmt.setInt(2, memberNum);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                chatRoom = rs.getInt("CHAT_NUM_PK");
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return chatRoom;
+    }
+
+    // 🤮채팅방 번호 가지고 대화 정보 가져오기
+    public List<ChatMessagesVO> getMessagesByChatNum(int chatRoom) {
+        List<ChatMessagesVO> list = new ArrayList<>();
+        String sql = "SELECT * FROM CHAT_MESSAGES_TB WHERE CHAT_NUM_FK = ? ORDER BY CREATED_AT";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, chatRoom);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                ChatMessagesVO cmvo = new ChatMessagesVO();
+                cmvo.setMessageNum(rs.getInt("MSG_NUM_PK"));
+                cmvo.setChatNum(rs.getInt("CHAT_NUM_FK"));
+                cmvo.setSenderId(rs.getInt("SENDER_ID_FK"));
+                cmvo.setReceiverId(rs.getInt("RECEIVER_ID_FK"));
+                cmvo.setMessage(rs.getString("MESSAGE"));
+                cmvo.setCodeBlock(rs.getString("CODE_BLOCK"));
+                cmvo.setMessageType(rs.getInt("MSG_TYPE"));
+                cmvo.setCreatedAt(rs.getTimestamp("CREATED_AT"));
+                cmvo.setIsRead(rs.getString("IS_READ").charAt(0));
+
+                list.add(cmvo);
             }
             Common.close(rs);
             Common.close(pstmt);

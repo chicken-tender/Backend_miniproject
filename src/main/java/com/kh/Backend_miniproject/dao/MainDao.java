@@ -13,7 +13,7 @@ public class MainDao {
     private ResultSet rs = null;
     private PreparedStatement pstmt = null;
 
-    // ✨글을 많이 작성한 상위 5명의 회원정보 get
+    // ✅글을 많이 작성한 상위 5명의 회원정보 get
     public List<TopWriterVO> getTopWriters() {
         List<TopWriterVO> list = new ArrayList<>();
 
@@ -49,7 +49,7 @@ public class MainDao {
         }
         return list;
     }
-    // ✨전체 회원 수 get
+    // ✅전체 회원 수 get
     public int getTotalMemberCount() {
         int count = 0;
         String sql = "SELECT COUNT(MEMBER_NUM_PK) AS c FROM MEMBERS_TB";
@@ -71,7 +71,7 @@ public class MainDao {
         }
         return count;
     }
-    // ✨오늘 새로 올라온 글 갯수
+    // ✅오늘 새로 올라온 글 갯수
     public int getTodayPostCount() {
         int count = 0;
         String sql = "SELECT COUNT(POST_NUM_PK) AS c FROM POST_TB WHERE TRUNC(WRITE_DATE) = TRUNC(SYSDATE)";
@@ -93,7 +93,7 @@ public class MainDao {
         }
         return count;
     }
-    // ✨오늘 새로 올라온 댓글 갯수
+    // ✅오늘 새로 올라온 댓글 갯수
     public int getTodayReplyCount() {
         int count = 0;
         String sql = "SELECT COUNT(REPLY_NUM_PK) AS c FROM REPLY_TB WHERE TRUNC(WRITE_DATE) = TRUNC(SYSDATE)";
@@ -115,7 +115,7 @@ public class MainDao {
         }
         return count;
     }
-    // ✨포트폴리오 게시판 글 전체 갯수
+    // ✅포트폴리오 게시판 글 전체 갯수
     public int getPortfolioPostCount() {
         int count = 0;
         String sql = "SELECT COUNT(POST_NUM_PK) AS c FROM POST_TB WHERE BOARD_NUM_FK = 4";
@@ -138,7 +138,7 @@ public class MainDao {
         return count;
     }
 
-    // ✨전체 글 갯수
+    // ✅전체 글 갯수
     public int getTotalPostCount() {
         int count = 0;
         String sql = "SELECT COUNT(POST_NUM_PK) AS c FROM POST_TB";
@@ -161,7 +161,7 @@ public class MainDao {
         return count;
     }
 
-    // ✨정보공유 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
+    // ✅정보공유 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
     public List<PostInfoVO> getLatestInformationPosts() {
         List<PostInfoVO> list = new ArrayList<>();
         String sql = "SELECT P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.COMMENT_COUNT " +
@@ -200,7 +200,7 @@ public class MainDao {
         return list;
     }
 
-    // ✨포트폴리오 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
+    // ✅포트폴리오 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
     public List<PostInfoVO> getLatestPortfolioPosts() {
         List<PostInfoVO> list = new ArrayList<>();
         String sql = "SELECT P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.COMMENT_COUNT " +
@@ -239,7 +239,7 @@ public class MainDao {
         return list;
     }
 
-    // ✨베스트 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
+    // ✅베스트 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
     public List<PostInfoVO> getLatestBestPosts() {
         List<PostInfoVO> list = new ArrayList<>();
         String sql = "SELECT P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.COMMENT_COUNT " +
@@ -277,7 +277,7 @@ public class MainDao {
         }
         return list;
     }
-    // ✨Q&A 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
+    // ✅Q&A 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
     public List<PostInfoVO> getLatestQnAPosts() {
         List<PostInfoVO> list = new ArrayList<>();
         String sql = "SELECT P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.COMMENT_COUNT " +
@@ -316,7 +316,7 @@ public class MainDao {
         return list;
     }
 
-    // ✨회원 프로필 사진 get
+    // ✅회원 프로필 사진 (by email)
     public String getProfileImageByEmail(String email) {
         String profileImage = null;
         String sql = "SELECT PF_IMG FROM MEMBERS_TB WHERE EMAIL = ?";
@@ -328,7 +328,7 @@ public class MainDao {
             rs = pstmt.executeQuery();
 
             while(rs.next()) {
-                profileImage = rs.getString(("PF_IMG"));
+                profileImage = rs.getString("PF_IMG");
             }
             Common.close(rs);
             Common.close(pstmt);
@@ -337,6 +337,52 @@ public class MainDao {
             e.printStackTrace();
         }
         return profileImage;
+    }
+
+    // 🤮회원 프로필 사진 (by memberNum)
+    public String getProfileImageByMemberNum(int memberNum) {
+        String profileImage = null;
+        String sql = "SELECT PF_IMG FROM MEMBERS_TB WHERE MEMBER_NUM_PK = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                profileImage = rs.getString("PF_IMG");
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return profileImage;
+    }
+
+    // 🤮회원 닉네임 (by memberNum)
+    public String getNicknameByMemberNum(int memberNum) {
+        String nickname = null;
+        String sql = "SELECT NICKNAME FROM MEMBERS_TB WHERE MEMBER_NUM_PK = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                nickname = rs.getString("NICKNAME");
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return nickname;
     }
 
     // ✨회원 닉네임 get

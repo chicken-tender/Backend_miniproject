@@ -1,5 +1,6 @@
 package com.kh.Backend_miniproject.controller;
 import com.kh.Backend_miniproject.dao.ChattingDAO;
+import com.kh.Backend_miniproject.dao.MainDao;
 import com.kh.Backend_miniproject.dao.MatchingDAO;
 import com.kh.Backend_miniproject.vo.ChatMessagesVO;
 import com.kh.Backend_miniproject.vo.MembersVO;
@@ -61,7 +62,7 @@ public class ChattingController {
         }
     }
 
-    // 🤮매칭된 모든 회원 번호 전송
+    // ✅매칭된 모든 회원 번호 전송
     @GetMapping("/mentor-mentee")
     public ResponseEntity<List<MentorMenteeVO>> fetchAllMentorMenteeNum() {
         ChattingDAO cdao = new ChattingDAO();
@@ -70,6 +71,28 @@ public class ChattingController {
         if(list == null || list.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    // 🤮로그인 한 유저가 속한 채팅방 요청에 대한 응답
+    @GetMapping("/chat/{memberNum}/room")
+    public ResponseEntity<Integer> fetchChatRoomByMemberNum(@PathVariable int memberNum) {
+        ChattingDAO cdao = new ChattingDAO();
+        int chatRoom = cdao.getChatRoomByMemberNum(memberNum);
+
+        if(chatRoom != 0) {
+            return new ResponseEntity<>(chatRoom, HttpStatus.OK);
+        } return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    // 🤮채팅방 번호 전달 -> 해당 채팅방 메시지 정보 응답
+    @PostMapping("/chat/messages")
+    public ResponseEntity<List<ChatMessagesVO>> fetchChatMessages(@RequestBody Map<String, Integer> chatRoom) {
+        int chatNum = chatRoom.get("chatRoom");
+        ChattingDAO cdao = new ChattingDAO();
+        List<ChatMessagesVO> list = cdao.getMessagesByChatNum(chatNum);
+        if(list != null) {
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        } return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     // 🏓채팅 메시지 조회
