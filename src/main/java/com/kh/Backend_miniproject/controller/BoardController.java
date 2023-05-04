@@ -78,7 +78,7 @@ public class BoardController {
         BoardDAO dao = new BoardDAO();
         List<ReplyVO> replies = dao.viewReply(postNum);
         if (replies.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            replies = new ArrayList<>();
         }
         return new ResponseEntity<>(replies, HttpStatus.OK);
     }
@@ -98,10 +98,10 @@ public class BoardController {
 
     // ✏️ 게시글 작성
     @PostMapping("/post")
-    public ResponseEntity<String> fetchWritePost(@RequestBody PostVO post) {
+    public ResponseEntity<Integer> fetchWritePost(@RequestBody PostVO post) {
         BoardDAO dao = new BoardDAO();
-        dao.writePost(post);
-        return new ResponseEntity<>("True", HttpStatus.OK);
+        int postNum = dao.writePost(post);
+        return new ResponseEntity<>(postNum, HttpStatus.OK);
     }
 
 
