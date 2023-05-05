@@ -49,7 +49,7 @@ public class AccountDAO {
     public boolean createMember(int gradeNumber, String email, String password, String nickName, String job, int year, String pfImg) {
         int result = 0;
         String sql = "INSERT INTO MEMBERS_TB (MEMBER_NUM_PK, GRADE_NUM_FK, EMAIL, PWD, NICKNAME, JOB, YEAR, PF_IMG)" +
-                " VALUES (seq_MEMBER_NUM.NEXTVAL, ?, ?, ?, ?, ?, ?, ?)";
+                " VALUES (seq_MEMBER_NUM.NEXTVAL, ? , ?, ?, ?, ?, ?, ?)";
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -199,7 +199,6 @@ public class AccountDAO {
         return list;
     }
 
-
     // [5.3 추가] GET🔑입력받은 닉네임으로 사용자의 이메일 호출
     public String getMemberEmailByNickname(String nickname) {
         String memberEmail = "";
@@ -275,12 +274,13 @@ public class AccountDAO {
         return vo;
     }
 
-    // 🔑(마이페이지) 회원의 최근 게시글 5개 (카테고리, 제목, 본문, 날짜)
+    // [5.5 수정] 쿼리문에 글번호 추가
+    // GET🔑(마이페이지) 회원의 최근 게시글 5개 (카테고리, 제목, 본문, 날짜)
     public List<MyPageVO> getMemberLatestPosts(int memberNum) {
         List<MyPageVO> list = new ArrayList<>();
         String sql = "SELECT *" +
                 " FROM (" +
-                " SELECT p.TITLE, p.CONTENT, b.BOARD_NAME, p.WRITE_DATE " +
+                " SELECT p.POST_NUM_PK, p.TITLE, p.CONTENT, b.BOARD_NAME, p.WRITE_DATE " +
                 " FROM POST_TB p " +
                 " JOIN BOARD_TB b ON p.BOARD_NUM_FK = b.BOARD_NUM_PK " +
                 " JOIN MEMBERS_TB m ON p.MEMBER_NUM_FK = m.MEMBER_NUM_PK " +
@@ -296,6 +296,7 @@ public class AccountDAO {
 
             while (rs.next()) {
                 MyPageVO vo = new MyPageVO();
+                vo.setPostNum(rs.getInt("POST_NUM_PK"));
                 vo.setPostTitle(rs.getString("TITLE"));
                 vo.setPostContent(rs.getString("CONTENT"));
                 vo.setBoardName(rs.getString("BOARD_NAME"));
@@ -313,18 +314,21 @@ public class AccountDAO {
         return list;
     }
 
-    // 🔑(마이페이지) 회원의 최근 댓글 5개 (카테고리, 댓글내용, 게시글 제목, 날짜)
+
+
+    // [5.5 수정] 쿼리문에 글번호 추가
+    // GET🔑(마이페이지) 회원의 최근 댓글 5개 (카테고리, 댓글내용, 게시글 제목, 날짜)
     public List<MyPageVO> getMemberLatestReplies(int memberNum) {
         List<MyPageVO> list = new ArrayList<>();
         String sql = "SELECT *" +
                 " FROM (" +
-                " SELECT r.REPLY_CONTENT, p.TITLE, b.BOARD_NAME, p.WRITE_DATE" +
+                " SELECT p.POST_NUM_PK, r.REPLY_CONTENT, p.TITLE, b.BOARD_NAME, r.WRITE_DATE" +
                 " FROM REPLY_TB r" +
                 " JOIN POST_TB p ON r.POST_NUM_FK = p.POST_NUM_PK" +
                 " JOIN BOARD_TB b ON p.BOARD_NUM_FK = b.BOARD_NUM_PK" +
-                " JOIN MEMBERS_TB m ON p.MEMBER_NUM_FK = m.MEMBER_NUM_PK" +
+                " JOIN MEMBERS_TB m ON r.MEMBER_NUM_FK = m.MEMBER_NUM_PK" +
                 " WHERE m.MEMBER_NUM_PK = ?" +
-                " ORDER BY p.WRITE_DATE DESC" +
+                " ORDER BY r.WRITE_DATE DESC" +
                 ")" +
                 " WHERE ROWNUM <=5";
 
@@ -336,6 +340,7 @@ public class AccountDAO {
 
             while (rs.next()) {
                 MyPageVO vo = new MyPageVO();
+                vo.setPostNum(rs.getInt("POST_NUM_PK"));
                 vo.setReplyContent(rs.getString("REPLY_CONTENT"));
                 vo.setPostTitle(rs.getString("TITLE"));
                 vo.setBoardName(rs.getString("BOARD_NAME"));
@@ -639,7 +644,6 @@ public class AccountDAO {
         }
         return count;
     }
-
     // ❌(마이페이지) 회원정보 기본 (프로필사진, 가입일, 닉네임, 이메일, 직업, 연차)
     public List<MembersVO> getMemberInfoBasicByNumber(int memberNum) {
         List<MembersVO> list = new ArrayList<>();
@@ -680,8 +684,8 @@ public class AccountDAO {
         }
         return list;
     }
-
-    // ❌ 마이페이지: 회원정보 조회 (등급아이콘, 총 게시글 수, 총 댓글 수)
+    // [5.5] 사용 GET🔑
+    // ✅ 마이페이지: 회원정보 조회 (등급아이콘, 총 게시글 수, 총 댓글 수)
     public List<MyPageVO> getMemberInfoByNum(int memberNum) {
         List<MyPageVO> list = new ArrayList<>();
 
@@ -732,12 +736,12 @@ public class AccountDAO {
         }
         return list;
     }
-
-    // ❌(마이페이지) 회원 기술 스택
+    // [5.5] 사용 GET🔑
+    // ✅(마이페이지) 회원 기술 스택
     public List<TechStackVO> getMemberTechStackByNum(int memberNum) {
         List<TechStackVO> list = new ArrayList<>();
 
-        String sql = "SELECT ts.STACK_ICON_URL" +
+        String sql = "SELECT ts.STACK_NUM_PK, ts.STACK_NAME, ts.STACK_ICON_URL" +
                 " FROM MEMBER_TS_TB mts JOIN TECH_STACK_TB ts" +
                 " ON ts.STACK_NUM_PK = mts.STACK_NUM_FK" +
                 " WHERE MEMBER_NUM_FK = ?";
@@ -749,9 +753,13 @@ public class AccountDAO {
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
+                int stackNum = rs.getInt("STACK_NUM_PK");
+                String stackName = rs.getString("STACK_NAME");
                 String stackIconUrl = rs.getString("STACK_ICON_URL");
 
                 TechStackVO vo = new TechStackVO();
+                vo.setStackNum(stackNum);
+                vo.setStackName(stackName);
                 vo.setStackIconUrl(stackIconUrl);
                 list.add(vo);
             }
