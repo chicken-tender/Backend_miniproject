@@ -105,7 +105,7 @@ public class ChattingController {
         }
     }
 
-    // 🤮채팅 상대방 회원 정보 요청에 따른 응답
+    // ✅채팅 상대방 회원 정보 요청에 따른 응답
     @GetMapping("/chat/{memberNum}/details")
     public ResponseEntity<UserDetailVO> fetchUserDetailsByMemberNum(@PathVariable("memberNum") int memberNum) {
         ChattingDAO cdao = new ChattingDAO();
@@ -114,41 +114,6 @@ public class ChattingController {
         if(userDetails == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else return new ResponseEntity<>(userDetails, HttpStatus.OK);
-    }
-
-    // 🏓채팅 메시지 조회
-    @GetMapping("/chat/messages/{senderId}/{receiverId}")
-    public ResponseEntity<List<ChatMessagesVO>> fetchChatMessages(@PathVariable int senderId, @PathVariable int receiverId) {
-        ChattingDAO cdao = new ChattingDAO();
-        List<ChatMessagesVO> list = cdao.getChatMessages(senderId, receiverId);
-
-        if(list == null) {
-            return new ResponseEntity<>(list, HttpStatus.NOT_FOUND);
-        } return new ResponseEntity<>(list, HttpStatus.OK);
-    }
-
-    // 🏓안읽은 메시지 조회
-    @GetMapping("/chat/{userId}/unread-messages")
-    public ResponseEntity<List<ChatMessagesVO>> fetchUnreadMessages(@PathVariable int memberNum) {
-        ChattingDAO cdao = new ChattingDAO();
-        List<ChatMessagesVO> list = cdao.getUnreadMessages(memberNum);
-
-        if(list == null) {
-            return new ResponseEntity<>(list, HttpStatus.NOT_FOUND);
-        } return new ResponseEntity<>(list, HttpStatus.OK);
-    }
-
-    // 🏓️메시지 읽었다고 알리기
-    @PatchMapping("/chat/message/{messageId}")
-    public ResponseEntity<Boolean> updateMessageReadStatus(@PathVariable("messageId") int messageId) {
-        ChattingDAO cdao = new ChattingDAO();
-        boolean result = cdao.markMessageAsRead(messageId);
-
-        if(result) {
-            return new ResponseEntity<>(true, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-        }
     }
 
     // 🏓대화 종료 요청에 따른 대화방 삭제
@@ -163,7 +128,7 @@ public class ChattingController {
     @DeleteMapping("/chat/messages")
     public ResponseEntity<Void> deleteChatMessages(@RequestParam int chatNum) {
         ChattingDAO cdao = new ChattingDAO();
-        cdao.deleteChatRoom(chatNum);
+        cdao.deleteChatMessages(chatNum);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
