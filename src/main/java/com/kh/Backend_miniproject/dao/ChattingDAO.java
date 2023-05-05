@@ -1,6 +1,7 @@
 package com.kh.Backend_miniproject.dao;
 import com.kh.Backend_miniproject.common.Common;
 import com.kh.Backend_miniproject.vo.ChatMessagesVO;
+import com.kh.Backend_miniproject.vo.ChatRoomVO;
 import com.kh.Backend_miniproject.vo.MentorMenteeVO;
 import com.kh.Backend_miniproject.vo.UserDetailVO;
 import java.sql.Connection;
@@ -97,7 +98,7 @@ public class ChattingDAO {
         return list;
     }
 
-    // 🤮로그인 한 유저가 속한 채팅방 가져오기
+    // ✅로그인 한 유저가 속한 채팅방 가져오기
     public int getChatRoomByMemberNum(int memberNum) {
         int chatRoom = 0;
         String sql = "SELECT CHAT_NUM_PK FROM CHAT_ROOM_TB WHERE MENTOR_FK = ? OR MENTEE_FK = ?";
@@ -122,7 +123,7 @@ public class ChattingDAO {
         return chatRoom;
     }
 
-    // 🤮채팅방 번호 가지고 대화 정보 가져오기
+    // ✅채팅방 번호 가지고 대화 정보 가져오기
     public List<ChatMessagesVO> getMessagesByChatNum(int chatRoom) {
         List<ChatMessagesVO> list = new ArrayList<>();
         String sql = "SELECT * FROM CHAT_MESSAGES_TB WHERE CHAT_NUM_FK = ? ORDER BY CREATED_AT";
@@ -154,6 +155,73 @@ public class ChattingDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // ✅채팅방에 있는 회원 번호 가져오기
+    public List<ChatRoomVO> getChatInfoByChatNum(int chatNum) {
+        List<ChatRoomVO> list = new ArrayList<>();
+        String sql = "SELECT * FROM CHAT_ROOM_TB WHERE CHAT_NUM_PK = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, chatNum);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                ChatRoomVO cvo = new ChatRoomVO();
+                cvo.setChatNum(rs.getInt("CHAT_NUM_PK"));
+                cvo.setMentor(rs.getInt("MENTOR_FK"));
+                cvo.setMentee(rs.getInt("MENTEE_FK"));
+                list.add(cvo);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // 🤮상대방 프로필 사진, 등급뱃지, 닉네임, 개발 스택, 직업, 연차 가져오기
+    public UserDetailVO getUserDetailsByMemberNum(int memberNum) {
+        UserDetailVO uvo = null;
+        String sql = "SELECT M.PF_IMG, M.NICKNAME, M.JOB, M.YEAR, " +
+                "LISTAGG(T.STACK_ICON_URL, ',') WITHIN GROUP (ORDER BY T.STACK_NUM_PK) AS STACK_ICON_URLS, " +
+                "LISTAGG(MT.STACK_NUM_FK, ',') WITHIN GROUP (ORDER BY T.STACK_NUM_PK) AS STACK_NUM_FKS " +
+                "FROM MEMBERS_TB M " +
+                "JOIN MEMBER_TS_TB MT ON M.MEMBER_NUM_PK = MT.MEMBER_NUM_FK " +
+                "JOIN TECH_STACK_TB T ON MT.STACK_NUM_FK = T.STACK_NUM_PK " +
+                "WHERE M.MEMBER_NUM_PK = ? " +
+                "GROUP BY M.PF_IMG, M.NICKNAME, M.JOB, M.YEAR";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                uvo = new UserDetailVO();
+                uvo.setPfImg(rs.getString("PF_IMG"));
+                uvo.setNickname(rs.getString("NICKNAME"));
+                uvo.setJob(rs.getString("JOB"));
+                uvo.setYear(rs.getInt("YEAR"));
+                List<String> stackIconUrls = Arrays.asList(rs.getString("STACK_ICON_URLS").split(","));
+                uvo.setStackIconUrls(stackIconUrls);
+                List<Integer> stackNums = Arrays.stream(rs.getString("STACK_NUM_FKS").split(","))
+                        .map(Integer::parseInt).
+                        collect(Collectors.toList());
+                uvo.setStackNums(stackNums);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return uvo;
     }
 
     // ✨대화 종료시 대화방 삭제
@@ -279,45 +347,5 @@ public class ChattingDAO {
             e.printStackTrace();
         }
         return result == 1;
-    }
-
-    // ✨상대방 프로필 사진, 등급뱃지, 닉네임, 개발 스택, 직업, 연차 가져오기
-    public UserDetailVO getUserDetailsByMemberNum(int memberNum) {
-        UserDetailVO uvo = null;
-        String sql = "SELECT M.PF_IMG, M.NICKNAME, M.JOB, M.YEAR, " +
-                "LISTAGG(T.STACK_ICON_URL, ',') WITHIN GROUP (ORDER BY T.STACK_NUM_PK) AS STACK_ICON_URLS, " +
-                "LISTAGG(MT.STACK_NUM_FK, ',') WITHIN GROUP (ORDER BY T.STACK_NUM_PK) AS STACK_NUM_FKS " +
-                "FROM MEMBERS_TB M " +
-                "JOIN MEMBER_TS_TB MT ON M.MEMBER_NUM_PK = MT.MEMBER_NUM_FK " +
-                "JOIN TECH_STACK_TB T ON MT.STACK_NUM_FK = T.STACK_NUM_PK " +
-                "WHERE M.MEMBER_NUM_PK = ? " +
-                "GROUP BY M.PF_IMG, M.NICKNAME, M.JOB, M.YEAR";
-
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, memberNum);
-            rs = pstmt.executeQuery();
-
-            while(rs.next()) {
-                uvo = new UserDetailVO();
-                uvo.setPfImg(rs.getString("PF_IMG"));
-                uvo.setNickname(rs.getString("NICKNAME"));
-                uvo.setJob(rs.getString("JOB"));
-                uvo.setYear(rs.getInt("YEAR"));
-                List<String> stackIconUrls = Arrays.asList(rs.getString("STACK_ICON_URLS").split(","));
-                uvo.setStackIconUrls(stackIconUrls);
-                List<Integer> stackNums = Arrays.stream(rs.getString("STACK_NUM_FKS").split(","))
-                        .map(Integer::parseInt).
-                        collect(Collectors.toList());
-                uvo.setStackNums(stackNums);
-            }
-            Common.close(rs);
-            Common.close(pstmt);
-            Common.close(conn);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return uvo;
     }
 }

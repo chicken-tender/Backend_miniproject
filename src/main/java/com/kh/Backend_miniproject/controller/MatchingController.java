@@ -50,4 +50,16 @@ public class MatchingController {
             return new ResponseEntity<>(menteeInfo, HttpStatus.NOT_FOUND);
         } return new ResponseEntity<>(menteeInfo, HttpStatus.OK);
     }
+
+    // 🙏사용자의 회원 번호를 가진 멘토, 멘티 있는지 확인 요청에 따른 응답
+    @PostMapping("/checkUserMatched")
+    public ResponseEntity<Boolean> checkUserMatched(@RequestBody Map<String, Integer> data) {
+        int memberNum = data.get("memberNum");
+        MatchingDAO mdao = new MatchingDAO();
+        boolean isMatched = mdao.isUserMatched(memberNum);
+
+        if(isMatched) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+    }
 }

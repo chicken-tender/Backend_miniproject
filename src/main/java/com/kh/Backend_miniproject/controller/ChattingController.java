@@ -2,10 +2,7 @@ package com.kh.Backend_miniproject.controller;
 import com.kh.Backend_miniproject.dao.ChattingDAO;
 import com.kh.Backend_miniproject.dao.MainDao;
 import com.kh.Backend_miniproject.dao.MatchingDAO;
-import com.kh.Backend_miniproject.vo.ChatMessagesVO;
-import com.kh.Backend_miniproject.vo.MembersVO;
-import com.kh.Backend_miniproject.vo.MentorMenteeVO;
-import com.kh.Backend_miniproject.vo.UserDetailVO;
+import com.kh.Backend_miniproject.vo.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -73,7 +70,7 @@ public class ChattingController {
         } return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    // 🤮로그인 한 유저가 속한 채팅방 요청에 대한 응답
+    // ✅로그인 한 유저가 속한 채팅방 요청에 대한 응답
     @GetMapping("/chat/{memberNum}/room")
     public ResponseEntity<Integer> fetchChatRoomByMemberNum(@PathVariable int memberNum) {
         ChattingDAO cdao = new ChattingDAO();
@@ -84,7 +81,7 @@ public class ChattingController {
         } return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    // 🤮채팅방 번호 전달 -> 해당 채팅방 메시지 정보 응답
+    // ✅채팅방 번호 전달 -> 해당 채팅방 메시지 정보 응답
     @PostMapping("/chat/messages")
     public ResponseEntity<List<ChatMessagesVO>> fetchChatMessages(@RequestBody Map<String, Integer> chatRoom) {
         int chatNum = chatRoom.get("chatRoom");
@@ -93,6 +90,30 @@ public class ChattingController {
         if(list != null) {
             return new ResponseEntity<>(list, HttpStatus.OK);
         } return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    // ✅특정 채팅방 유저 정보 응답
+    @GetMapping("/chat/chatRoom/{chatNum}")
+    public ResponseEntity<List<ChatRoomVO>> fetchChatInfoByChatNum(@PathVariable("chatNum") int chatNumber) {
+        ChattingDAO cdao = new ChattingDAO();
+        List<ChatRoomVO> list = cdao.getChatInfoByChatNum(chatNumber);
+
+        if(list != null && !list.isEmpty()) {
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // 🤮채팅 상대방 회원 정보 요청에 따른 응답
+    @GetMapping("/chat/{memberNum}/details")
+    public ResponseEntity<UserDetailVO> fetchUserDetailsByMemberNum(@PathVariable("memberNum") int memberNum) {
+        ChattingDAO cdao = new ChattingDAO();
+        UserDetailVO userDetails = cdao.getUserDetailsByMemberNum(memberNum);
+
+        if(userDetails == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else return new ResponseEntity<>(userDetails, HttpStatus.OK);
     }
 
     // 🏓채팅 메시지 조회
@@ -144,16 +165,5 @@ public class ChattingController {
         ChattingDAO cdao = new ChattingDAO();
         cdao.deleteChatRoom(chatNum);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    // 🏓채팅 상대방 회원 정보 요청에 따른 응답
-    @GetMapping("/chat/{memberNum}/details")
-    public ResponseEntity<UserDetailVO> fetchUserDetailsByMemberNum(@PathVariable("memberNum") int memberNum) {
-        ChattingDAO cdao = new ChattingDAO();
-        UserDetailVO userDetails = cdao.getUserDetailsByMemberNum(memberNum);
-
-        if(userDetails == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else return new ResponseEntity<>(userDetails, HttpStatus.OK);
     }
 }

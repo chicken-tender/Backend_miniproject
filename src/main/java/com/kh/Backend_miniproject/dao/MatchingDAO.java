@@ -139,4 +139,28 @@ public class MatchingDAO {
         }
         return list;
     }
+
+    // 🙏사용자의 회원 번호를 가진 멘토, 멘티가 있는지 확인
+    public boolean isUserMatched(int memberNum) {
+        String sql = "SELECT * FROM CHAT_ROOM_TB WHERE MENTOR_FK = ? OR MENTEE_FK = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
+            pstmt.setInt(2, memberNum);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                return true;
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        }
+        return false;
+    }
 }
