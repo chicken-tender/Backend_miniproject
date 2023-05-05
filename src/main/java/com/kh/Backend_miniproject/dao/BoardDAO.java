@@ -321,7 +321,7 @@ public class BoardDAO {
 
     // ✨ 게시글 수정
     public void updatePost(PostVO post) {
-        String sql = "UPDATE POST_TB SET TITLE = ?, CONTENT = ?, TAG = ?, IMG_URL = ? " +
+        String sql = "UPDATE POST_TB SET BOARD_NUM_FK = ?, TITLE = ?, CONTENT = ?, TAG = ?, IMG_URL = ? " +
                 "WHERE POST_NUM_PK = ?";
 
         Connection conn = null;
@@ -331,11 +331,12 @@ public class BoardDAO {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
 
-            pstmt.setString(1, post.getTitle());
-            pstmt.setString(2, post.getContent());
-            pstmt.setString(3, post.getTag());
-            pstmt.setString(4, post.getImgUrl());
-            pstmt.setInt(5, post.getPostNum());
+            pstmt.setInt(1, post.getBoardNum());
+            pstmt.setString(2, post.getTitle());
+            pstmt.setString(3, post.getContent());
+            pstmt.setString(4, post.getTag());
+            pstmt.setString(5, post.getImgUrl());
+            pstmt.setInt(6, post.getPostNum());
             pstmt.executeUpdate();
 
             Common.close(pstmt);
