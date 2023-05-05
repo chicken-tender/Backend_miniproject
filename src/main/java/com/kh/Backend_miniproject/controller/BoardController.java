@@ -125,20 +125,20 @@ public class BoardController {
 
     // ✏️ 댓글 작성
     @PostMapping("/reply")
-    public ResponseEntity<String> fetchWriteReply(@RequestBody Map<String, Object> contentData) {
-        int postNum = (int) contentData.get("postNum");
-        int memberNum = (int) contentData.get("memberNum");
-        String content = (String) contentData.get("replyContent");
+    public ResponseEntity<String> fetchWriteReply(@RequestBody Map<String, Object> data) {
+        int postNum = Integer.parseInt((String) data.get("postNum"));
+        int memberNum = (int) data.get("memberNum");
+        String replyContent = (String) data.get("replyContent");
         BoardDAO dao = new BoardDAO();
-        dao.writeReply(postNum, memberNum, content);
+        dao.writeReply(postNum, memberNum, replyContent);
         return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
     // ✏️ 댓글 수정
     @PutMapping("/reply")
-    public ResponseEntity<String> updateReply(@RequestBody Map<String, Object> payload) {
-        int replyNum = (int) payload.get("replyNum");
-        String content = (String) payload.get("content");
+    public ResponseEntity<String> updateReply(@RequestBody Map<String, Object> data) {
+        int replyNum = (int) data.get("replyNum");
+        String content = (String) data.get("content");
 
         BoardDAO dao = new BoardDAO();
         dao.updateReply(replyNum, content);

@@ -491,7 +491,7 @@ public class BoardDAO {
 
 
     // ✨댓글 작성
-    public void writeReply(int postNum, int memberNum, String content) {
+    public void writeReply(int postNum, int memberNum, String replyContent) {
         String sql = "INSERT INTO REPLY_TB (REPLY_NUM_PK, POST_NUM_FK, MEMBER_NUM_FK, REPLY_CONTENT, WRITE_DATE) " +
                 "VALUES (seq_REPLY_NUM.NEXTVAL, ?, ?, ?, SYSDATE)";
 
@@ -503,7 +503,7 @@ public class BoardDAO {
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, postNum);
             pstmt.setInt(2, memberNum);
-            pstmt.setString(3, content);
+            pstmt.setString(3, replyContent);
             pstmt.executeUpdate();
 
         } catch (Exception e) {
