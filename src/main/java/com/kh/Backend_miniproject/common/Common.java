@@ -16,7 +16,6 @@ public class Common {
         try {
             Class.forName(ORACLE_DRV); // 드라이버 로딩
             conn = DriverManager.getConnection(ORACLE_URL, ORACLE_ID, ORACLE_PW);
-            System.out.println("Connection 연결 성공");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -26,7 +25,6 @@ public class Common {
         try {
             if(conn != null && !conn.isClosed()) {
                 conn.close();
-                System.out.println("Connection 해제 성공");
             }
 
         } catch (Exception e) {
@@ -37,7 +35,6 @@ public class Common {
         try {
             if(stmt != null && !stmt.isClosed()) {
                 stmt.close();
-                System.out.println("Statement 해제 성공");
             }
 
         } catch (Exception e) {
@@ -49,7 +46,6 @@ public class Common {
         try {
             if(rSet != null && !rSet.isClosed()) {
                 rSet.close();
-                System.out.println("Result set 해제 성공");
             }
 
         } catch (Exception e) {

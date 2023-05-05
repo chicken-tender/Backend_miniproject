@@ -11,6 +11,7 @@ public class UserDetailVO {
     private String nickname;
     private String job;
     private int year;
+    private String gradeIconUrl;
     private List<String> stackIconUrls;
     private List<Integer> stackNums;
 }
