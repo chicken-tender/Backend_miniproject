@@ -164,9 +164,9 @@ public class MainDao {
     // ✅정보공유 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
     public List<PostInfoVO> getLatestInformationPosts() {
         List<PostInfoVO> list = new ArrayList<>();
-        String sql = "SELECT P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.COMMENT_COUNT " +
+        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT " +
                 "FROM ( " +
-                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS COMMENT_COUNT " +
+                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
                 "  FROM POST_TB POST " +
                 "  LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
                 "  WHERE POST.BOARD_NUM_FK = 2 " +
@@ -182,11 +182,12 @@ public class MainDao {
 
             while(rs.next()) {
                 PostInfoVO pv = new PostInfoVO();
+                pv.setPostNum(rs.getInt("POST_NUM_PK"));
                 pv.setTitle(rs.getString("TITLE"));
                 pv.setNickname(rs.getString("NICKNAME"));
                 pv.setPfImg(rs.getString("PF_IMG"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
-                pv.setCommentCount(rs.getInt("COMMENT_COUNT"));
+                pv.setCommentCount(rs.getInt("REPLY_COUNT"));
 
                 list.add(pv);
             }
@@ -200,12 +201,13 @@ public class MainDao {
         return list;
     }
 
+
     // ✅포트폴리오 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
     public List<PostInfoVO> getLatestPortfolioPosts() {
         List<PostInfoVO> list = new ArrayList<>();
-        String sql = "SELECT P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.COMMENT_COUNT " +
+        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT " +
                 "FROM ( " +
-                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS COMMENT_COUNT " +
+                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
                 "  FROM POST_TB POST " +
                 "  LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
                 "  WHERE POST.BOARD_NUM_FK = 4 " +
@@ -221,11 +223,12 @@ public class MainDao {
 
             while(rs.next()) {
                 PostInfoVO pv = new PostInfoVO();
+                pv.setPostNum(rs.getInt("POST_NUM_PK"));
                 pv.setTitle(rs.getString("TITLE"));
                 pv.setNickname(rs.getString("NICKNAME"));
                 pv.setPfImg(rs.getString("PF_IMG"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
-                pv.setCommentCount(rs.getInt("COMMENT_COUNT"));
+                pv.setCommentCount(rs.getInt("REPLY_COUNT"));
 
                 list.add(pv);
             }
@@ -242,9 +245,9 @@ public class MainDao {
     // ✅베스트 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
     public List<PostInfoVO> getLatestBestPosts() {
         List<PostInfoVO> list = new ArrayList<>();
-        String sql = "SELECT P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.COMMENT_COUNT " +
+        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT " +
                 "FROM ( " +
-                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS COMMENT_COUNT " +
+                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
                 "  FROM POST_TB POST " +
                 "  LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
                 "  WHERE POST.BOARD_NUM_FK = 5 " +
@@ -260,11 +263,12 @@ public class MainDao {
 
             while(rs.next()) {
                 PostInfoVO pv = new PostInfoVO();
+                pv.setPostNum(rs.getInt("POST_NUM_PK"));
                 pv.setTitle(rs.getString("TITLE"));
                 pv.setNickname(rs.getString("NICKNAME"));
                 pv.setPfImg(rs.getString("PF_IMG"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
-                pv.setCommentCount(rs.getInt("COMMENT_COUNT"));
+                pv.setCommentCount(rs.getInt("REPLY_COUNT"));
 
                 list.add(pv);
             }
@@ -280,9 +284,9 @@ public class MainDao {
     // ✅Q&A 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
     public List<PostInfoVO> getLatestQnAPosts() {
         List<PostInfoVO> list = new ArrayList<>();
-        String sql = "SELECT P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.COMMENT_COUNT " +
+        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT " +
                 "FROM ( " +
-                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS COMMENT_COUNT " +
+                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
                 "  FROM POST_TB POST " +
                 "  LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
                 "  WHERE POST.BOARD_NUM_FK = 1 " +
@@ -298,11 +302,12 @@ public class MainDao {
 
             while(rs.next()) {
                 PostInfoVO pv = new PostInfoVO();
+                pv.setPostNum(rs.getInt("POST_NUM_PK"));
                 pv.setTitle(rs.getString("TITLE"));
                 pv.setNickname(rs.getString("NICKNAME"));
                 pv.setPfImg(rs.getString("PF_IMG"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
-                pv.setCommentCount(rs.getInt("COMMENT_COUNT"));
+                pv.setCommentCount(rs.getInt("REPLY_COUNT"));
 
                 list.add(pv);
             }
