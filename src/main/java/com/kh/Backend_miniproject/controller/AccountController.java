@@ -101,17 +101,16 @@ public class AccountController {
     }
 
 
-
-    // GET🔑(마이페이지) 회원의 최근 게시글 5개 (카테고리, 제목, 본문, 날짜)
-    @GetMapping("/members/my-5-latest-posts")
+    // [5.5 수정] GET🔑(마이페이지) 회원의 최근 게시글 5개 (카테고리, 제목, 본문, 날짜)
+    @GetMapping("/mypage/my-5-latest-post")
     public ResponseEntity<List<MyPageVO>> fetchMyLatestPostsByNum(@RequestParam int memberNum) {
         AccountDAO dao = new AccountDAO();
         List<MyPageVO> list = dao.getMemberLatestPosts(memberNum);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    // GET🔑(마이페이지) 회원의 최근 댓글 5개 (카테고리, 댓글내용, 게시글 제목, 날짜)
-    @GetMapping("/members/my-5-latest-replies")
+    // [5.5 수정] GET🔑(마이페이지) 회원의 최근 댓글 5개 (카테고리, 댓글내용, 게시글 제목, 날짜)
+    @GetMapping("/mypage/my-5-latest-reply")
     public ResponseEntity<List<MyPageVO>> fetchMyLatestRepliesByNum(@RequestParam int memberNum) {
         AccountDAO dao = new AccountDAO();
         List<MyPageVO> list = dao.getMemberLatestReplies(memberNum);
@@ -223,9 +222,9 @@ public class AccountController {
         }
 
 
-
-    // GET❌ 마이페이지: 회원정보 조회 (등급아이콘, 총 게시글 수, 총 댓글 수)
-    @GetMapping("/members/info")
+    // [5.5] 사용 GET🔑
+    // ✅ 마이페이지: 회원정보 조회 (등급아이콘, 총 게시글 수, 총 댓글 수)
+    @GetMapping("/mypage/myprofile")
     public ResponseEntity<List<MyPageVO>> fetchMemberInfoByNum(@RequestParam int memberNum) {
         AccountDAO dao = new AccountDAO();
         List<MyPageVO> list = dao.getMemberInfoByNum(memberNum);
@@ -236,8 +235,9 @@ public class AccountController {
         }
     }
 
-    // GET❌ 마이페이지: 회원 기술 스택
-    @GetMapping("/members/tech-stacks")
+    // [5.5] 사용 GET🔑
+    // ✅ 마이페이지: 회원 기술 스택
+    @GetMapping("/mypage/mytechstacks")
     public ResponseEntity<List<TechStackVO>> fetchMemberTechStackByNum(@RequestParam int memberNum) {
         AccountDAO dao = new AccountDAO();
         List<TechStackVO> list = dao.getMemberTechStackByNum(memberNum);
