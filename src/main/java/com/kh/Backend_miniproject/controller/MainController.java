@@ -67,35 +67,11 @@ public class MainController {
         return new ResponseEntity<>(count, HttpStatus.OK);
     }
 
-    // ✅정보공유 게시판 최근 게시글 5개 요청에 따른 응답
-    @GetMapping("post/information-latest-5")
-    public ResponseEntity<List<PostInfoVO>> fetchLatestInformationPosts() {
+    // ✅각 게시판 별 최근 게시글 요청에 따른 응답
+    @GetMapping("/post/latest/{boardNum}")
+    public ResponseEntity<List<PostInfoVO>> fetchLatestPosts(@PathVariable int boardNum) {
         MainDao mdao = new MainDao();
-        List<PostInfoVO> list = mdao.getLatestInformationPosts();
-        return new ResponseEntity<>(list, HttpStatus.OK);
-    }
-
-    // ✅포트폴리오 게시판 최근 게시글 5개 요청에 따른 응답
-    @GetMapping("post/portfolio-latest-5")
-    public ResponseEntity<List<PostInfoVO>> fetchLatestPortfolioPosts() {
-        MainDao mdao = new MainDao();
-        List<PostInfoVO> list = mdao.getLatestPortfolioPosts();
-        return new ResponseEntity<>(list, HttpStatus.OK);
-    }
-
-    // ✅베스트 게시판 최근 게시글 5개 요청에 따른 응답
-    @GetMapping("post/best-latest-5")
-    public ResponseEntity<List<PostInfoVO>> fetchLatestBestPosts() {
-        MainDao mdao = new MainDao();
-        List<PostInfoVO> list = mdao.getLatestBestPosts();
-        return new ResponseEntity<>(list, HttpStatus.OK);
-    }
-
-    // ✅Q&A 게시판 최근 게시글 5개 요청에 따른 응답
-    @GetMapping("post/qna-latest-5")
-    public ResponseEntity<List<PostInfoVO>> fetchLatestQnAPosts() {
-        MainDao mdao = new MainDao();
-        List<PostInfoVO> list = mdao.getLatestQnAPosts();
+        List<PostInfoVO> list = mdao.getLatestPosts(boardNum);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
@@ -112,7 +88,7 @@ public class MainController {
         return new ResponseEntity<>(pfImg, HttpStatus.OK);
     }
 
-    // 🤮회원 프로필 사진(by memberNum) 요청에 따른 응답
+    // ✅회원 프로필 사진(by memberNum) 요청에 따른 응답
     @PostMapping("/memberNum/pfImg")
     public ResponseEntity<String> fetchPfImgByMemberNum(@RequestBody Map<String, Integer> memberNumData) {
         int memberNum = memberNumData.get("memberNum");
@@ -124,7 +100,7 @@ public class MainController {
         } return new ResponseEntity<>(pfImg, HttpStatus.OK);
     }
 
-    // 🤮회원 닉네임(by memberNum) 요청에 따른 응답
+    // ✅회원 닉네임(by memberNum) 요청에 따른 응답
     @PostMapping("/memberNum/nickname")
     public ResponseEntity<String> fetchNicknameByMemberNum(@RequestBody Map<String, Integer> memberNumData) {
         int memberNum = memberNumData.get("memberNum");

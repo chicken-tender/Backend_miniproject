@@ -161,170 +161,6 @@ public class MainDao {
         return count;
     }
 
-    // ✅정보공유 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
-    public List<PostInfoVO> getLatestInformationPosts() {
-        List<PostInfoVO> list = new ArrayList<>();
-        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT, P.WRITE_DATE " +
-                "FROM ( " +
-                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
-                "  FROM POST_TB POST " +
-                "  LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
-                "  WHERE POST.BOARD_NUM_FK = 2 " +
-                "  GROUP BY POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE) P " +
-                "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
-                "WHERE ROWNUM <= 5 " +
-                "ORDER BY P.WRITE_DATE DESC";
-
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
-            while(rs.next()) {
-                PostInfoVO pv = new PostInfoVO();
-                pv.setPostNum(rs.getInt("POST_NUM_PK"));
-                pv.setTitle(rs.getString("TITLE"));
-                pv.setNickname(rs.getString("NICKNAME"));
-                pv.setPfImg(rs.getString("PF_IMG"));
-                pv.setViewCount(rs.getInt("VIEW_COUNT"));
-                pv.setCommentCount(rs.getInt("REPLY_COUNT"));
-                pv.setWriteDate(rs.getDate("WRITE_DATE"));
-
-                list.add(pv);
-            }
-            Common.close(rs);
-            Common.close(pstmt);
-            Common.close(conn);
-
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-
-    // ✅포트폴리오 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
-    public List<PostInfoVO> getLatestPortfolioPosts() {
-        List<PostInfoVO> list = new ArrayList<>();
-        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT, P.WRITE_DATE " +
-                "FROM ( " +
-                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
-                "  FROM POST_TB POST " +
-                "  LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
-                "  WHERE POST.BOARD_NUM_FK = 4 " +
-                "  GROUP BY POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE) P " +
-                "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
-                "WHERE ROWNUM <= 5 " +
-                "ORDER BY P.WRITE_DATE DESC";
-
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
-            while(rs.next()) {
-                PostInfoVO pv = new PostInfoVO();
-                pv.setPostNum(rs.getInt("POST_NUM_PK"));
-                pv.setTitle(rs.getString("TITLE"));
-                pv.setNickname(rs.getString("NICKNAME"));
-                pv.setPfImg(rs.getString("PF_IMG"));
-                pv.setViewCount(rs.getInt("VIEW_COUNT"));
-                pv.setCommentCount(rs.getInt("REPLY_COUNT"));
-                pv.setWriteDate(rs.getDate("WRITE_DATE"));
-
-                list.add(pv);
-            }
-            Common.close(rs);
-            Common.close(pstmt);
-            Common.close(conn);
-
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    // ✅베스트 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
-    public List<PostInfoVO> getLatestBestPosts() {
-        List<PostInfoVO> list = new ArrayList<>();
-        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT, P.WRITE_DATE " +
-                "FROM ( " +
-                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
-                "  FROM POST_TB POST " +
-                "  LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
-                "  WHERE POST.BOARD_NUM_FK = 5 " +
-                "  GROUP BY POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE) P " +
-                "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
-                "WHERE ROWNUM <= 5 " +
-                "ORDER BY P.WRITE_DATE DESC";
-
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
-            while(rs.next()) {
-                PostInfoVO pv = new PostInfoVO();
-                pv.setPostNum(rs.getInt("POST_NUM_PK"));
-                pv.setTitle(rs.getString("TITLE"));
-                pv.setNickname(rs.getString("NICKNAME"));
-                pv.setPfImg(rs.getString("PF_IMG"));
-                pv.setViewCount(rs.getInt("VIEW_COUNT"));
-                pv.setCommentCount(rs.getInt("REPLY_COUNT"));
-                pv.setWriteDate(rs.getDate("WRITE_DATE"));
-
-                list.add(pv);
-            }
-            Common.close(rs);
-            Common.close(pstmt);
-            Common.close(conn);
-
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-    // ✅Q&A 게시판 최근 게시글 5개(제목, 작성자, 프로필 사진, 조회수, 댓글수)
-    public List<PostInfoVO> getLatestQnAPosts() {
-        List<PostInfoVO> list = new ArrayList<>();
-        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT, P.WRITE_DATE " +
-                "FROM ( " +
-                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
-                "  FROM POST_TB POST " +
-                "  LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
-                "  WHERE POST.BOARD_NUM_FK = 1 " +
-                "  GROUP BY POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE) P " +
-                "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
-                "WHERE ROWNUM <= 5 " +
-                "ORDER BY P.WRITE_DATE DESC";
-
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
-            while(rs.next()) {
-                PostInfoVO pv = new PostInfoVO();
-                pv.setPostNum(rs.getInt("POST_NUM_PK"));
-                pv.setTitle(rs.getString("TITLE"));
-                pv.setNickname(rs.getString("NICKNAME"));
-                pv.setPfImg(rs.getString("PF_IMG"));
-                pv.setViewCount(rs.getInt("VIEW_COUNT"));
-                pv.setCommentCount(rs.getInt("REPLY_COUNT"));
-                pv.setWriteDate(rs.getDate("WRITE_DATE"));
-
-                list.add(pv);
-            }
-            Common.close(rs);
-            Common.close(pstmt);
-            Common.close(conn);
-
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
     // ✅회원 프로필 사진 (by email)
     public String getProfileImageByEmail(String email) {
         String profileImage = null;
@@ -348,7 +184,7 @@ public class MainDao {
         return profileImage;
     }
 
-    // 🤮회원 프로필 사진 (by memberNum)
+    // ✅회원 프로필 사진 (by memberNum)
     public String getProfileImageByMemberNum(int memberNum) {
         String profileImage = null;
         String sql = "SELECT PF_IMG FROM MEMBERS_TB WHERE MEMBER_NUM_PK = ?";
@@ -371,7 +207,7 @@ public class MainDao {
         return profileImage;
     }
 
-    // 🤮회원 닉네임 (by memberNum)
+    // ✅회원 닉네임 (by memberNum)
     public String getNicknameByMemberNum(int memberNum) {
         String nickname = null;
         String sql = "SELECT NICKNAME FROM MEMBERS_TB WHERE MEMBER_NUM_PK = ?";
@@ -394,7 +230,7 @@ public class MainDao {
         return nickname;
     }
 
-    // ✨회원 닉네임 get
+    // ✅회원 닉네임 get
     public String getNickNameByEmail(String email) {
         String nickname = null;
         String sql = "SELECT NICKNAME FROM MEMBERS_TB WHERE EMAIL = ?";
@@ -416,5 +252,47 @@ public class MainDao {
             e.printStackTrace();
         }
         return nickname;
+    }
+
+    // ✅각 게시판 별로 데이터 가져오기
+    public List<PostInfoVO> getLatestPosts(int boardNum) {
+        List<PostInfoVO> list = new ArrayList<>();
+        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT, P.WRITE_DATE " +
+                "FROM ( " +
+                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
+                "  FROM POST_TB POST " +
+                "  LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
+                "  WHERE POST.BOARD_NUM_FK = ? " +
+                "  GROUP BY POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE) P " +
+                "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
+                "WHERE ROWNUM <= 5 " +
+                "ORDER BY P.WRITE_DATE DESC";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, boardNum);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                PostInfoVO pv = new PostInfoVO();
+                pv.setPostNum(rs.getInt("POST_NUM_PK"));
+                pv.setTitle(rs.getString("TITLE"));
+                pv.setNickname(rs.getString("NICKNAME"));
+                pv.setPfImg(rs.getString("PF_IMG"));
+                pv.setViewCount(rs.getInt("VIEW_COUNT"));
+                pv.setCommentCount(rs.getInt("REPLY_COUNT"));
+                pv.setWriteDate(rs.getDate("WRITE_DATE"));
+
+                list.add(pv);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }
