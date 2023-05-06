@@ -23,4 +23,5 @@ public class MyPageVO {
     private String replyContent;
     private Date writeDate;
     private int postNum;
+    private int replyNum;
 }
