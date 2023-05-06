@@ -270,8 +270,6 @@ public class MainDao {
                 "ORDER BY P.WRITE_DATE DESC " +
                 ") " +
                 "WHERE ROWNUM <= 5";
-
-
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -299,4 +297,52 @@ public class MainDao {
         }
         return list;
     }
+
+    // 📍메인 검색 기능
+    public List<PostInfoVO> mainSearchPosts(String keyword) {
+        List<PostInfoVO> list = new ArrayList<>();
+        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.CONTENT, P.IMG_URL, P.WRITE_DATE, P.TAG, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT " +
+                "FROM (" +
+                "SELECT POST.POST_NUM_PK, POST.TITLE, POST.CONTENT, POST.MEMBER_NUM_FK, POST.IMG_URL, POST.WRITE_DATE, POST.TAG, POST.VIEW_COUNT, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
+                "FROM POST_TB POST " +
+                "LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
+                "WHERE (POST.TITLE LIKE ? OR POST.CONTENT LIKE ? OR POST.TAG LIKE ?) " +
+                "GROUP BY POST.POST_NUM_PK, POST.TITLE, POST.CONTENT, POST.MEMBER_NUM_FK, POST.IMG_URL, POST.WRITE_DATE, POST.TAG, POST.VIEW_COUNT " +
+                ") P " +
+                "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
+                "ORDER BY P.WRITE_DATE DESC";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, "%" + keyword + "%");
+            pstmt.setString(2, "%" + keyword + "%");
+            pstmt.setString(3, "%" + keyword + "%");
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                PostInfoVO pv = new PostInfoVO();
+                pv.setPostNum(rs.getInt("POST_NUM_PK"));
+                pv.setTitle(rs.getString("TITLE"));
+                pv.setNickname(rs.getString("NICKNAME"));
+                pv.setContent(rs.getString("CONTENT"));
+                pv.setImgUrl(rs.getString("IMG_URL"));
+                pv.setWriteDate(rs.getDate("WRITE_DATE"));
+                pv.setTag(rs.getString("TAG"));
+                pv.setPfImg(rs.getString("PF_IMG"));
+                pv.setViewCount(rs.getInt("VIEW_COUNT"));
+                pv.setReplyCount(rs.getInt("REPLY_COUNT"));
+
+                list.add(pv);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
 }

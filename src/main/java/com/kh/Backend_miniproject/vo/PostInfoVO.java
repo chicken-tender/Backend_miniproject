@@ -11,6 +11,10 @@ public class PostInfoVO {
     private String nickname;
     private String pfImg;
     private int viewCount;
+    private int replyCount;
     private int commentCount;
     private Date writeDate;
+    private String content;
+    private String imgUrl;
+    private String tag;
 }

@@ -112,6 +112,17 @@ public class MainController {
         } return new ResponseEntity<>(nickname, HttpStatus.OK);
     }
 
+    // 📍메인 검색 결과 요청에 따른 응답
+    @GetMapping("/main/search")
+    public ResponseEntity<List<PostInfoVO>> mainSearchPosts(@RequestParam("keyword") String keyword) {
+        MainDao mdao = new MainDao();
+        List<PostInfoVO> list = mdao.mainSearchPosts(keyword);
+
+        if (list != null || !list.isEmpty()) {
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        } return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
     // 🔴️회원 닉네임 요청에 따른 응답
     @PostMapping("/member/nickname")
     public ResponseEntity<String> fetchNickname(@RequestBody Map<String, String> emailData) {
