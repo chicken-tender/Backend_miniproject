@@ -1,11 +1,14 @@
 package com.kh.Backend_miniproject.controller;
+import com.kh.Backend_miniproject.common.Common;
 import com.kh.Backend_miniproject.dao.AccountDAO;
+import com.kh.Backend_miniproject.dao.BoardDAO;
 import com.kh.Backend_miniproject.dao.MainDao;
 import com.kh.Backend_miniproject.vo.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +121,7 @@ public class AccountController {
     }
 
     // GET🔑(마이페이지 > 내 게시글 관리) 회원의 모든 게시글
-    @GetMapping("/members/all-posts")
+    @GetMapping("/mypage/my-all-post")
     public ResponseEntity<List<MyPageVO>> fetchAllMyPosts(@RequestParam int memberNum) {
         AccountDAO dao = new AccountDAO();
         List<MyPageVO> list = dao.getMemberAllPosts(memberNum);
@@ -126,12 +129,29 @@ public class AccountController {
     }
 
     // GET🔑(마이페이지 > 내 댓글 관리) 회원의 모든 댓글
-    @GetMapping("/members/all-replies")
+    @GetMapping("/mypage/my-all-reply")
     public ResponseEntity<List<MyPageVO>> fetchAllMyReplies(@RequestParam int memberNum) {
         AccountDAO dao = new AccountDAO();
         List<MyPageVO> list = dao.getMemberAllReplies(memberNum);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
+
+    // DELETE✅[5.6] 마이페이지 내 게시글 (다중)삭제
+    @DeleteMapping("/mypage/mypost")
+    public ResponseEntity<Void> fetchDeleteMyPost(@RequestBody List<Integer> postNums) {
+        AccountDAO adao = new AccountDAO();
+        adao.deleteMyPost(postNums);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // DELETE✅[5.6] 마이페이지 내 게시글 (다중)삭제
+    @DeleteMapping("/mypage/myreply")
+    public ResponseEntity<Void> fetchDeleteMyReply(@RequestBody List<Integer> replyNums) {
+        AccountDAO adao = new AccountDAO();
+        adao.deleteMyReply(replyNums);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     // POST⚙️ (마이페이지 > 내 정보 관리) 이메일 변경
     @PostMapping("/mypage/edit/email")
@@ -243,6 +263,9 @@ public class AccountController {
         List<TechStackVO> list = dao.getMemberTechStackByNum(memberNum);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
+
+
+
 
 
 }

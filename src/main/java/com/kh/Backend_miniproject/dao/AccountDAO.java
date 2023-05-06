@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AccountDAO {
     private Connection conn = null;
@@ -356,11 +357,11 @@ public class AccountDAO {
         }
         return list;
     }
-
+    // [5.6 수정] 글번호 추가
     // 🔑(마이페이지 > 내 게시글 관리) 회원의 모든 게시글
     public List<MyPageVO> getMemberAllPosts(int memberNumber) {
         List<MyPageVO> list = new ArrayList<>();
-        String sql = "SELECT p.TITLE, p.CONTENT, b.BOARD_NAME, p.WRITE_DATE" +
+        String sql = "SELECT p.POST_NUM_PK, p.TITLE, p.CONTENT, b.BOARD_NAME, p.WRITE_DATE" +
                 " FROM POST_TB p" +
                 " JOIN BOARD_TB b ON p.BOARD_NUM_FK = b.BOARD_NUM_PK" +
                 " JOIN MEMBERS_TB m ON p.MEMBER_NUM_FK = m.MEMBER_NUM_PK" +
@@ -375,6 +376,7 @@ public class AccountDAO {
 
             while (rs.next()) {
                 MyPageVO vo = new MyPageVO();
+                vo.setPostNum(rs.getInt("POST_NUM_PK"));
                 vo.setPostTitle(rs.getString("TITLE"));
                 vo.setPostContent(rs.getString("CONTENT"));
                 vo.setBoardName(rs.getString("BOARD_NAME"));
@@ -390,17 +392,17 @@ public class AccountDAO {
         }
         return list;
     }
-
+    // [5.6 수정] 글번호 & 댓글번호 추가
     // 🔑(마이페이지 > 내 댓글 관리) 회원의 모든 댓글
     public List<MyPageVO> getMemberAllReplies(int memberNumber) {
         List<MyPageVO> list = new ArrayList<>();
-        String sql = "SELECT r.REPLY_CONTENT, p.TITLE, b.BOARD_NAME, p.WRITE_DATE" +
+        String sql = "SELECT p.POST_NUM_PK, r.REPLY_NUM_PK, r.REPLY_CONTENT, p.TITLE, b.BOARD_NAME, r.WRITE_DATE" +
                 " FROM REPLY_TB r" +
                 " JOIN POST_TB p ON r.POST_NUM_FK = p.POST_NUM_PK" +
                 " JOIN BOARD_TB b ON p.BOARD_NUM_FK = b.BOARD_NUM_PK" +
-                " JOIN MEMBERS_TB m ON p.MEMBER_NUM_FK = m.MEMBER_NUM_PK" +
+                " JOIN MEMBERS_TB m ON r.MEMBER_NUM_FK = m.MEMBER_NUM_PK" +
                 " WHERE m.MEMBER_NUM_PK = ?" +
-                " ORDER BY p.WRITE_DATE DESC";
+                " ORDER BY r.WRITE_DATE DESC";
 
         try {
             conn = Common.getConnection();
@@ -410,6 +412,8 @@ public class AccountDAO {
 
             while (rs.next()) {
                 MyPageVO vo = new MyPageVO();
+                vo.setPostNum(rs.getInt("POST_NUM_PK"));
+                vo.setReplyNum(rs.getInt("REPLY_NUM_PK"));
                 vo.setReplyContent(rs.getString("REPLY_CONTENT"));
                 vo.setPostTitle(rs.getString("TITLE"));
                 vo.setBoardName(rs.getString("BOARD_NAME"));
@@ -425,6 +429,71 @@ public class AccountDAO {
         }
         return list;
     }
+
+
+    // [5.6 추가]DELETE✅ 마이페이지 > 회원의 게시글 (다중)삭제
+    public void deleteMyPost(List<Integer> postNums) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = Common.getConnection();
+            conn.setAutoCommit(false);  // 트랜잭션 시작
+
+            // 댓글 삭제
+            String deleteCommentsSQL = "DELETE FROM REPLY_TB WHERE POST_NUM_FK = ?";
+            pstmt = conn.prepareStatement(deleteCommentsSQL);
+            for (int postNum : postNums) {
+                pstmt.setInt(1, postNum);
+                pstmt.executeUpdate();
+            }
+            // 게시글 삭제
+            String deletePostSQL = "DELETE FROM POST_TB WHERE POST_NUM_PK IN (?)";
+            pstmt = conn.prepareStatement(deletePostSQL);
+            for (int postNum : postNums) {
+                pstmt.setInt(1, postNum);
+                pstmt.executeUpdate();
+            }
+
+            conn.commit();  // 트랜잭션 커밋
+
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch (Exception e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();  // 트랜잭션 롤백
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        }
+    }
+
+    // [5.6 추가]DELETE✅마이페이지 > 회원의 댓글 (다중)삭제
+    public void deleteMyReply(List<Integer> replyNums) {
+        String sql = "DELETE FROM REPLY_TB WHERE REPLY_NUM_PK IN (?)";
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            for (int replyNum : replyNums) {
+                pstmt.setInt(1, replyNum);
+                pstmt.executeUpdate();
+            }
+
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
+
 
     // 🔐회원 정보 변경 : 이메일
     public void updateMemberEmail(String memberEmail, int memberNum) {
