@@ -138,10 +138,10 @@ public class BoardController {
     @PutMapping("/reply")
     public ResponseEntity<String> updateReply(@RequestBody Map<String, Object> data) {
         int replyNum = (int) data.get("replyNum");
-        String content = (String) data.get("content");
+        String replyContent = (String) data.get("content");
 
         BoardDAO dao = new BoardDAO();
-        dao.updateReply(replyNum, content);
+        dao.updateReply(replyNum, replyContent);
         return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
