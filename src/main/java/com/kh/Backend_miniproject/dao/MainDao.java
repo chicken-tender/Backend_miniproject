@@ -257,16 +257,20 @@ public class MainDao {
     // ✅각 게시판 별로 데이터 가져오기
     public List<PostInfoVO> getLatestPosts(int boardNum) {
         List<PostInfoVO> list = new ArrayList<>();
-        String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT, P.WRITE_DATE " +
-                "FROM ( " +
-                "  SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
-                "  FROM POST_TB POST " +
-                "  LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
-                "  WHERE POST.BOARD_NUM_FK = ? " +
-                "  GROUP BY POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE) P " +
+        String sql = "SELECT * FROM (" +
+                "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT, P.WRITE_DATE " +
+                "FROM (" +
+                "SELECT POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE, COUNT(REPLY.REPLY_NUM_PK) AS REPLY_COUNT " +
+                "FROM POST_TB POST " +
+                "LEFT JOIN REPLY_TB REPLY ON POST.POST_NUM_PK = REPLY.POST_NUM_FK " +
+                "WHERE POST.BOARD_NUM_FK = ? " +
+                "GROUP BY POST.POST_NUM_PK, POST.TITLE, POST.MEMBER_NUM_FK, POST.VIEW_COUNT, POST.WRITE_DATE " +
+                ") P " +
                 "JOIN MEMBERS_TB M ON P.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
-                "WHERE ROWNUM <= 5 " +
-                "ORDER BY P.WRITE_DATE DESC";
+                "ORDER BY P.WRITE_DATE DESC " +
+                ") " +
+                "WHERE ROWNUM <= 5";
+
 
         try {
             conn = Common.getConnection();
