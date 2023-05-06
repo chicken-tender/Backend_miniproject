@@ -453,7 +453,7 @@ public class BoardDAO {
 
     // ✨댓글 보기(프로필이미지, 댓글작성자 닉네임, 내용, 작성날짜)
     public List<ReplyVO> viewReply(int postNum) {
-        String sql = "SELECT M.PF_IMG, M.NICKNAME, R.REPLY_CONTENT " +
+        String sql = "SELECT M.PF_IMG, M.NICKNAME, R.REPLY_CONTENT, R.REPLY_NUM_PK " +
                 "FROM REPLY_TB R " +
                 "JOIN MEMBERS_TB M ON R.MEMBER_NUM_FK = M.MEMBER_NUM_PK " +
                 "WHERE R.POST_NUM_FK = ? " +
@@ -475,6 +475,7 @@ public class BoardDAO {
                 rv.setPfImg(rs.getString("PF_IMG"));
                 rv.setNickname(rs.getString("NICKNAME"));
                 rv.setReplyContent(rs.getString("REPLY_CONTENT"));
+                rv.setReplyNum(rs.getInt("REPLY_NUM_PK"));
                 list.add(rv);
             }
 
@@ -513,7 +514,7 @@ public class BoardDAO {
 
 
     // ✨댓글 수정
-    public void updateReply(int replyNum, String content) {
+    public void updateReply(int replyNum, String replyContent) {
         String sql = "UPDATE REPLY_TB SET REPLY_CONTENT = ? WHERE REPLY_NUM_PK = ?";
 
         Connection conn = null;
@@ -522,7 +523,7 @@ public class BoardDAO {
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, content);
+            pstmt.setString(1, replyContent);
             pstmt.setInt(2, replyNum);
             pstmt.executeUpdate();
 
