@@ -1,7 +1,7 @@
 package com.kh.Backend_miniproject.vo;
-
 import lombok.Getter;
 import lombok.Setter;
+import java.sql.Date;
 
 @Getter
 @Setter
@@ -12,4 +12,5 @@ public class PostInfoVO {
     private String pfImg;
     private int viewCount;
     private int commentCount;
+    private Date writeDate;
 }
