@@ -53,12 +53,15 @@ public class BoardController {
 
     // ✏️게시판에서 검색
     @GetMapping("/search")
-    public ResponseEntity<List<PostVO>> fetchSearchPosts(@RequestParam("boardNum") int boardNum, @RequestParam("pageNum") int pageNum, @RequestParam("keyword") String keyword) {
+    public ResponseEntity<List<PostVO>> fetchSearchPosts(@RequestParam("boardName") String boardName, @RequestParam("pageNum") int pageNum, @RequestParam("keyword") String keyword) {
         BoardDAO dao = new BoardDAO();
+        int boardNum = dao.getBoardNum(boardName);
+        if (boardNum == 0) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         List<PostVO> list = dao.searchPosts(boardNum, pageNum, keyword);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
-
 
     // ✏️ 상세글 보기
     @GetMapping("/post/{postNum}")
