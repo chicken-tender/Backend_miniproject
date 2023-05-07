@@ -401,9 +401,9 @@ public class BoardDAO {
         // 추천을 누르지 않았을때, 추천수 추가
         String insertSql = "INSERT INTO LIKES_TB (POST_NUM_FK, MEMBER_NUM_FK) VALUES (?, ?)";
         // 추천을 이미 눌렀을 때, (추천버튼 두번 클릭) 기존 추천을 삭제 (중복 방지)
-        String deleteSql = "DELETE FROM Likes WHERE POST_NUM_FK = ? AND MEMBER_NUM_FK = ?";
+        String deleteSql = "DELETE FROM LIKES_TB WHERE POST_NUM_FK = ? AND MEMBER_NUM_FK = ?";
         // POST_TB의 LIKE_COUNT 업데이트
-        String updatePostSql = "UPDATE POST_TB SET LIKE_COUNT = (SELECT COUNT(*) FROM Likes WHERE POST_NUM_FK = ?) WHERE POST_NUM_PK = ?";
+        String updatePostSql = "UPDATE POST_TB SET LIKE_COUNT = (SELECT COUNT(*) FROM LIKES_TB WHERE POST_NUM_FK = ?) WHERE POST_NUM_PK = ?";
 
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -421,7 +421,6 @@ public class BoardDAO {
 
             Common.close(rs);
             Common.close(pstmt);
-            Common.close(conn);
 
             if (isLiked == 0) { // 좋아요가 없다면(0)
                 pstmt = conn.prepareStatement(insertSql);
@@ -435,7 +434,6 @@ public class BoardDAO {
                 pstmt.executeUpdate();
             }
             Common.close(pstmt);
-
             pstmt = conn.prepareStatement(updatePostSql);
             pstmt.setInt(1, postNum);
             pstmt.setInt(2, postNum);
