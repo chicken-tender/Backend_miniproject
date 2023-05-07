@@ -226,7 +226,7 @@ public class ChattingDAO {
         return uvo;
     }
 
-    // ✨대화 종료시 대화방 삭제
+    // ✅대화 종료시 대화방 삭제
     public void deleteChatRoom(int chatNum) {
         String sql = "DELETE FROM CHAT_ROOM_TB WHERE CHAT_NUM_PK = ?";
         try {
@@ -241,7 +241,7 @@ public class ChattingDAO {
             e.printStackTrace();
         }
     }
-    // ✨대화 종료시 채팅 메시지 삭제
+    // ✅대화 종료시 채팅 메시지 삭제
     public void deleteChatMessages(int chatNum) {
         String sql = "DELETE FROM CHAT_MESSAGES_TB WHERE CHAT_NUM_FK = ?";
         try {

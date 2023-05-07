@@ -112,7 +112,7 @@ public class MainController {
         } return new ResponseEntity<>(nickname, HttpStatus.OK);
     }
 
-    // 📍메인 검색 결과 요청에 따른 응답
+    // ✅메인 검색 결과 요청에 따른 응답
     @GetMapping("/main/search")
     public ResponseEntity<List<PostInfoVO>> mainSearchPosts(@RequestParam("keyword") String keyword) {
         MainDao mdao = new MainDao();

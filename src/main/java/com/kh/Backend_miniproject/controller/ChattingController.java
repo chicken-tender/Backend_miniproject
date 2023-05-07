@@ -116,7 +116,7 @@ public class ChattingController {
         } else return new ResponseEntity<>(userDetails, HttpStatus.OK);
     }
 
-    // 🏓대화 종료 요청에 따른 대화방 삭제
+    // ✅대화 종료 요청에 따른 대화방 삭제
     @DeleteMapping("/chat")
     public ResponseEntity<Void> deleteChatRoom(@RequestParam int chatNum) {
         ChattingDAO cdao = new ChattingDAO();
@@ -124,7 +124,7 @@ public class ChattingController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // 🏓대화 종료 요청에 따른 채팅 메시지 삭제
+    // ✅대화 종료 요청에 따른 채팅 메시지 삭제
     @DeleteMapping("/chat/messages")
     public ResponseEntity<Void> deleteChatMessages(@RequestParam int chatNum) {
         ChattingDAO cdao = new ChattingDAO();

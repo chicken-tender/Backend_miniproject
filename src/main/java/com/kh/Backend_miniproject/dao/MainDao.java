@@ -298,7 +298,7 @@ public class MainDao {
         return list;
     }
 
-    // 📍메인 검색 기능
+    // ✅메인 검색 기능
     public List<PostInfoVO> mainSearchPosts(String keyword) {
         List<PostInfoVO> list = new ArrayList<>();
         String sql = "SELECT P.POST_NUM_PK, P.TITLE, M.NICKNAME, P.CONTENT, P.IMG_URL, P.WRITE_DATE, P.TAG, M.PF_IMG, P.VIEW_COUNT, P.REPLY_COUNT " +

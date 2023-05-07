@@ -15,7 +15,7 @@ public class AlarmDAO {
     private PreparedStatement pstmt = null;
 
     /* 내가 작성한 글에 댓글이 달렸을 때 알리기 위함.
-         -> ✨작성자의 이메일 조회
+         -> ✅작성자의 이메일 조회
      */
     public String getAuthorEmailByPostNum(int postNum) {
         String email = null;
@@ -43,7 +43,7 @@ public class AlarmDAO {
         return email;
     }
 
-    // ✨댓글 작성
+    // ✅댓글 작성
     public void writeReplyTest(int postNum, int memberNum, String replyContent) {
         String sql = "INSERT INTO REPLY_TB (REPLY_NUM_PK, POST_NUM_FK, MEMBER_NUM_FK, REPLY_CONTENT, WRITE_DATE) " +
                 "VALUES (seq_REPLY_NUM.NEXTVAL, ?, ?, ?, SYSDATE)";
