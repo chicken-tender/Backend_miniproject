@@ -32,20 +32,21 @@ public class AccountController {
     }
 
     // 경미🔥POST : 회원가입시 생성된 회원번호를 이용해서 기술스택 저장
+        // [5.7] ❗️등급&프로필사진 -> 디비에서 기본값 설정 완료
     @PostMapping("/signup")
     public ResponseEntity<Boolean> signUp(@RequestBody Map<String, Object> request) {
         boolean result = false;
         AccountDAO ado = new AccountDAO();
 
-        int gradeNum = (int) request.get("gradeNum");
+//        int gradeNum = (int) request.get("gradeNum");
         String email = (String) request.get("email");
         String pwd = (String) request.get("pwd");
         String nickname = (String) request.get("nickname");
         String job = (String) request.get("job");
         int year = (int) request.get("year");
-        String pfImg = (String) request.get("pfImg");
+//        String pfImg = (String) request.get("pfImg");
 
-        result = ado.createMember(gradeNum, email, pwd, nickname, job, year, pfImg);
+        result = ado.createMember(email, pwd, nickname, job, year);
 
         if(result) {
             List<Map<String, Object>> techStacks = (List<Map<String, Object>>) request.get("techStacks");
@@ -63,7 +64,7 @@ public class AccountController {
     }
 
     // 경미🔥GET :  마이페이지 회원정보 조회
-    @GetMapping("/mypage")
+    @GetMapping("/mypage/edit")
     public ResponseEntity<SignUpVO> fetchMyPageMemberInfo(@RequestParam("memberNum") int memberNum) {
         AccountDAO ado = new AccountDAO();
         SignUpVO svo = ado.readMemberInfoByNumber(memberNum);

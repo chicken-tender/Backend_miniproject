@@ -7,4 +7,5 @@ import lombok.Setter;
 public class MemberTechStackVO {
     private MemberTechStackVO memberNum;
     private int stackNum;
+    private String stackIconUrl;
 }
