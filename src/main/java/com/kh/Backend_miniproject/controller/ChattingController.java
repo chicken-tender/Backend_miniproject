@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +48,9 @@ public class ChattingController {
 
         String createdAtStr = (String) data.get("createdAt");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
-        LocalDateTime createdAtLdt = LocalDateTime.parse(createdAtStr, formatter);
-        Timestamp createdAt = Timestamp.valueOf(createdAtLdt);
+        ZonedDateTime createdAtZdt = ZonedDateTime.parse(createdAtStr, formatter);
+        ZonedDateTime utcCreatedAt = createdAtZdt.withZoneSameInstant(ZoneId.of("UTC"));
+        Timestamp createdAt = Timestamp.from(utcCreatedAt.toInstant());
         Character isRead = ((String) data.get("isRead")).charAt(0);
 
         boolean result = cdao.saveChatMessage(chatNum, senderId, receiverId, message, codeBlock, messageType, createdAt, isRead);
