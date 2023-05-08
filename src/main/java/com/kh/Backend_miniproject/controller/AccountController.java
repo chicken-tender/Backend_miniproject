@@ -1,15 +1,11 @@
 package com.kh.Backend_miniproject.controller;
 import com.kh.Backend_miniproject.common.Common;
 import com.kh.Backend_miniproject.dao.AccountDAO;
-import com.kh.Backend_miniproject.dao.BoardDAO;
-import com.kh.Backend_miniproject.dao.MainDao;
 import com.kh.Backend_miniproject.vo.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
