@@ -391,11 +391,38 @@ public class BoardDAO {
         return result;
     }
 
+    // ✨추천 상태 확인
+    public boolean getLikesStatus(int postNum, int memberNum) {
+        String sql = "SELECT COUNT(*) FROM LIKES_TB WHERE POST_NUM_FK = ? AND MEMBER_NUM_FK = ?";
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean isLiked = false;
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, postNum);
+            pstmt.setInt(2, memberNum);
+            rs = pstmt.executeQuery();
+            rs.next();
+            int likeStatus = rs.getInt(1);
+
+            isLiked = likeStatus != 0;
+
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return isLiked;
+    }
+
 
     // ✨게시글 추천수 업데이트
-    public int updateLikes(int postNum, int memberNum) {
-        // 회원(memberId)이 특정 게시물(postNum)에 이미 추천을 눌렀는지 확인
-        String checkSql = "SELECT COUNT(*) FROM LIKES_TB WHERE POST_NUM_FK = ? AND MEMBER_NUM_FK = ?";
+    public boolean updateLikes(int postNum, int memberNum) {
         // 추천을 누르지 않았을때, 추천수 추가
         String insertSql = "INSERT INTO LIKES_TB (POST_NUM_FK, MEMBER_NUM_FK) VALUES (?, ?)";
         // 추천을 이미 눌렀을 때, (추천버튼 두번 클릭) 기존 추천을 삭제 (중복 방지)
@@ -407,35 +434,31 @@ public class BoardDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
-        int result = 0;
+        boolean isLiked = false;
         try {
             conn = Common.getConnection();
-            pstmt = conn.prepareStatement(checkSql);
-            pstmt.setInt(1, postNum);
-            pstmt.setInt(2, memberNum);
-            rs = pstmt.executeQuery();
-            rs.next();
-            int isLiked = rs.getInt(1); // 첫번쨰 칼럼 값
 
-            Common.close(rs);
-            Common.close(pstmt);
+            // 좋아요 상태 확인
+            isLiked = getLikesStatus(postNum, memberNum);
 
-            if (isLiked == 0) { // 좋아요가 없다면(0)
+            if (!isLiked) { // 좋아요가 없다면(0)
                 pstmt = conn.prepareStatement(insertSql);
                 pstmt.setInt(1, postNum);
                 pstmt.setInt(2, memberNum);
                 pstmt.executeUpdate();
+                isLiked = true;
             } else { // 좋아요 있으면 삭제
                 pstmt = conn.prepareStatement(deleteSql);
                 pstmt.setInt(1, postNum);
                 pstmt.setInt(2, memberNum);
                 pstmt.executeUpdate();
+                isLiked = false;
             }
             Common.close(pstmt);
             pstmt = conn.prepareStatement(updatePostSql);
             pstmt.setInt(1, postNum);
             pstmt.setInt(2, postNum);
-            result = pstmt.executeUpdate();
+            pstmt.executeUpdate();
 
             Common.close(pstmt);
             Common.close(conn);
@@ -443,7 +466,7 @@ public class BoardDAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return result;
+        return isLiked;
     }
 
 
