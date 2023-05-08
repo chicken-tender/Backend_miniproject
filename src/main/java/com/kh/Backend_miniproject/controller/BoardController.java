@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -157,14 +158,26 @@ public class BoardController {
         return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
+     // ❤ 추천 상태 반환
+    @GetMapping("/likeStatus")
+    public ResponseEntity<Map<String, Object>> fetchLikesStatus(@RequestParam("postNum") int postNum, @RequestParam("memberNum") int memberNum) {
+        BoardDAO dao = new BoardDAO();
+        boolean currentLikesStatus = dao.getLikesStatus(postNum, memberNum);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("isLiked", currentLikesStatus);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 
     // ❤ 추천수 업데이트
     @PostMapping("/like/{postNum}")
-    public ResponseEntity<Integer> fetchUpdateLikes(@PathVariable("postNum") int postNum, @RequestParam("memberNum") int memberNum) {
+    public ResponseEntity<Boolean> fetchUpdateLikes(@PathVariable("postNum") int postNum, @RequestParam("memberNum") int memberNum) {
         BoardDAO dao = new BoardDAO();
-        int result = dao.updateLikes(postNum, memberNum);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        boolean TRUE = dao.updateLikes(postNum, memberNum);
+        return new ResponseEntity<>(TRUE, HttpStatus.OK);
     }
+
+
 
 
     // 게시판 별 게시물 수 조회
