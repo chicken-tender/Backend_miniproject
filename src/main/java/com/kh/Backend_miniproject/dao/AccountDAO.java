@@ -46,21 +46,22 @@ public class AccountDAO {
     }
 
     // 👤(회원가입) 기본 정보 저장
-        // 🔥INSERT 문은 프론트엔드에게 성공여부만 알려주면 되기 때문에 return 타입 boolean으로 하면 됨
-    public boolean createMember(int gradeNumber, String email, String password, String nickName, String job, int year, String pfImg) {
+    // 🔥INSERT 문은 프론트엔드에게 성공여부만 알려주면 되기 때문에 return 타입 boolean으로 하면 됨
+        // [5.7] ❗️등급&프로필사진 -> 디비에서 기본값 설정 완료
+    public boolean createMember(String email, String password, String nickName, String job, int year) {
         int result = 0;
-        String sql = "INSERT INTO MEMBERS_TB (MEMBER_NUM_PK, GRADE_NUM_FK, EMAIL, PWD, NICKNAME, JOB, YEAR, PF_IMG)" +
-                " VALUES (seq_MEMBER_NUM.NEXTVAL, ? , ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO MEMBERS_TB (MEMBER_NUM_PK, EMAIL, PWD, NICKNAME, JOB, YEAR)" +
+                " VALUES (seq_MEMBER_NUM.NEXTVAL, ?, ?, ?, ?, ?)";
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, gradeNumber);
-            pstmt.setString(2, email);
-            pstmt.setString(3, password);
-            pstmt.setString(4, nickName);
-            pstmt.setString(5, job);
-            pstmt.setInt(6, year);
-            pstmt.setString(7, pfImg);
+//            pstmt.setInt(1, gradeNumber);
+            pstmt.setString(1, email);
+            pstmt.setString(2, password);
+            pstmt.setString(3, nickName);
+            pstmt.setString(4, job);
+            pstmt.setInt(5, year);
+//            pstmt.setString(7, pfImg);
             result = pstmt.executeUpdate();
 
             Common.close(pstmt);
@@ -125,9 +126,10 @@ public class AccountDAO {
     }
 
     // 🔥회원의 기술스택 조회
+        // [5.7] 기술스택 아이콘 가져오기 위해 쿼리문 변경
     public List<MemberTechStackVO> getMemberTechStack(int memberNum) {
         List<MemberTechStackVO> list = new ArrayList<>();
-        String sql = "SELECT * FROM MEMBER_TS_TB WHERE MEMBER_NUM_FK = ?";
+        String sql = "SELECT * FROM MEMBER_TS_TB JOIN TECH_STACK_TB ON MEMBER_TS_TB.STACK_NUM_FK = TECH_STACK_TB.STACK_NUM_PK WHERE MEMBER_NUM_FK = ?";
 
         try {
             conn = Common.getConnection();
@@ -139,6 +141,8 @@ public class AccountDAO {
                 MemberTechStackVO mtsVo = new MemberTechStackVO();
                 memberNum = rs.getInt("MEMBER_NUM_FK");
                 mtsVo.setStackNum(rs.getInt("STACK_NUM_FK"));
+                mtsVo.setStackIconUrl(rs.getString("STACK_ICON_URL"));
+
 
                 list.add(mtsVo);
             }
