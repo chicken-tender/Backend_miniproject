@@ -450,6 +450,15 @@ public class AccountDAO {
                 pstmt.setInt(1, postNum);
                 pstmt.executeUpdate();
             }
+
+            // 좋아요 삭제
+            String deleteLikesSQL = "DELETE FROM LIKES_TB WHERE POST_NUM_FK = ?";
+            pstmt = conn.prepareStatement(deleteLikesSQL);
+            for (int postNum : postNums) {
+                pstmt.setInt(1, postNum);
+                pstmt.executeUpdate();
+            }
+
             // 게시글 삭제
             String deletePostSQL = "DELETE FROM POST_TB WHERE POST_NUM_PK IN (?)";
             pstmt = conn.prepareStatement(deletePostSQL);
