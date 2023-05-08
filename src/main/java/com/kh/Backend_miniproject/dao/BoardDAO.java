@@ -218,8 +218,6 @@ public class BoardDAO {
                 pv.setNickname(rs.getString("NICKNAME"));
                 pv.setWriteDate(rs.getDate("WRITE_DATE"));
                 pv.setViewCount(rs.getInt("VIEW_COUNT"));
-
-
                 list.add(pv);
             }
             Common.close(rs);
@@ -583,6 +581,33 @@ public class BoardDAO {
             e.printStackTrace();
         }
         return boardNum;
+    }
+
+    // 검색 결과 총 게시물 개수
+    public int getSearchCount(int boardNum, String keyword) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) AS COUNT " +
+                "FROM POST_TB " +
+                "WHERE BOARD_NUM_FK = ? AND (TITLE LIKE ? OR CONTENT LIKE ? OR TAG LIKE ?)";
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            String kw = "%" + keyword + "%";
+            pstmt.setInt(1, boardNum);
+            pstmt.setString(2, kw);
+            pstmt.setString(3, kw);
+            pstmt.setString(4, kw);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt("COUNT");
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
     }
 
 }

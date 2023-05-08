@@ -174,7 +174,15 @@ public class BoardController {
         return dao.getTotalPosts(boardNum);
     }
 
-     // 이메일로 회원번호 get
+    // 검색결과에 따른 게시물 수 조회
+    @GetMapping("/search/posts")
+    public int fetchSearchTotal(@RequestParam("boardNum") int boardNum,
+                               @RequestParam("keyword") String keyword) {
+        BoardDAO dao = new BoardDAO();
+        return dao.getSearchCount(boardNum, keyword);
+    }
+
+    // 이메일로 회원번호 get
     @PostMapping("/member/number")
     public ResponseEntity<Integer> fetchMemberNumber(@RequestBody Map<String, String> emailData) {
         String email = emailData.get("email");
