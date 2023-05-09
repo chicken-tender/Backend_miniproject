@@ -52,8 +52,9 @@ public class ChattingController {
         ZonedDateTime utcCreatedAt = createdAtZdt.withZoneSameInstant(ZoneId.of("UTC"));
         Timestamp createdAt = Timestamp.from(utcCreatedAt.toInstant());
         Character isRead = ((String) data.get("isRead")).charAt(0);
+        String imgUrl = (String) data.get("imgUrl");
 
-        boolean result = cdao.saveChatMessage(chatNum, senderId, receiverId, message, codeBlock, messageType, createdAt, isRead);
+        boolean result = cdao.saveChatMessage(chatNum, senderId, receiverId, message, codeBlock, messageType, createdAt, isRead, imgUrl);
 
         if(result) {
             return new ResponseEntity<>(true, HttpStatus.OK);

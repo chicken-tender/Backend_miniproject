@@ -16,4 +16,5 @@ public class ChatMessagesVO {
     private int messageType;
     private Timestamp createdAt;
     private Character isRead;
+    private String imgUrl;
 }

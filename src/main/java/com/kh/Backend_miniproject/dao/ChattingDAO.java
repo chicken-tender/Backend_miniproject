@@ -44,11 +44,11 @@ public class ChattingDAO {
         return chatNum;
     }
 
-    // ✅채팅 메시지 저장
-    public boolean saveChatMessage(int chatNum, int senderId, int receiverId, String message, String codeBlock, int messageType, Timestamp createdAt, Character isRead) {
+    // 🛠️채팅 메시지 저장
+    public boolean saveChatMessage(int chatNum, int senderId, int receiverId, String message, String codeBlock, int messageType, Timestamp createdAt, Character isRead, String imgUrl) {
         int result = 0;
-        String sql = "INSERT INTO CHAT_MESSAGES_TB (MSG_NUM_PK, CHAT_NUM_FK, SENDER_ID_FK, RECEIVER_ID_FK, MESSAGE, CODE_BLOCK, MSG_TYPE, CREATED_AT, IS_READ) " +
-                "VALUES (seq_MSG_NUM.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO CHAT_MESSAGES_TB (MSG_NUM_PK, CHAT_NUM_FK, SENDER_ID_FK, RECEIVER_ID_FK, MESSAGE, CODE_BLOCK, MSG_TYPE, CREATED_AT, IS_READ, IMG_URL) " +
+                "VALUES (seq_MSG_NUM.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -60,6 +60,7 @@ public class ChattingDAO {
             pstmt.setInt(6, messageType);
             pstmt.setTimestamp(7, createdAt);
             pstmt.setString(8, String.valueOf(isRead));
+            pstmt.setString(9, imgUrl);
             result = pstmt.executeUpdate();
 
             Common.close(pstmt);
@@ -145,6 +146,7 @@ public class ChattingDAO {
                 cmvo.setMessageType(rs.getInt("MSG_TYPE"));
                 cmvo.setCreatedAt(rs.getTimestamp("CREATED_AT"));
                 cmvo.setIsRead(rs.getString("IS_READ").charAt(0));
+                cmvo.setImgUrl(rs.getString("IMG_URL"));
 
                 list.add(cmvo);
             }
