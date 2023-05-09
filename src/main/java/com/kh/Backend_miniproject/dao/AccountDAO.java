@@ -502,6 +502,26 @@ public class AccountDAO {
         }
     }
 
+    // [5.8 추가] UPDATE 마이페이지 > 회원정보 수정
+    public void updateMemberInfo(String memberNickname, String memberPwd, String memberJob, int memberYear, int memberNum) {
+        String sql = "UPDATE MEMBERS_TB SET NICKNAME = ?, PWD = ?, JOB = ?, YEAR = ? WHERE MEMBER_NUM_PK = ?";
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, memberNickname);
+            pstmt.setString(2, memberPwd);
+            pstmt.setString(3, memberJob);
+            pstmt.setInt(4, memberYear);
+            pstmt.setInt(5, memberNum);
+            pstmt.executeUpdate();
+
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 
@@ -599,7 +619,7 @@ public class AccountDAO {
         }
     }
 
-    // 🔐회원 정보 변경 : 기술 스택 추가
+    // [5.8] POST✅회원 정보 변경 : 기술 스택 추가
     public boolean addMemberTechStack(int memberNum, int techStackNum) {
         int result = 0;
         String sql = "INSERT INTO MEMBER_TS_TB (MEMBER_NUM_FK, STACK_NUM_FK) VALUES (?, ?)";
@@ -620,7 +640,7 @@ public class AccountDAO {
             else return false;
         }
 
-    // 🔐회원 정보 변경 : 기술 스택 삭제
+    // [5.8] DELETE✅회원 정보 변경 : 기술 스택 삭제
     public void deteleMemberTechStack(int memberNum, int memberTechStackNum) {
         String sql = "DELETE FROM MEMBER_TS_TB WHERE MEMBER_NUM_FK = ? AND STACK_NUM_FK = ?";
         try {
