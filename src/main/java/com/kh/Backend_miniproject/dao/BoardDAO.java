@@ -8,6 +8,7 @@ import com.kh.Backend_miniproject.vo.ReplyVO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -348,27 +349,52 @@ public class BoardDAO {
 
     // ✨ 게시글 삭제
     public void deletePost(int postNum) {
-        String sql = "DELETE FROM POST_TB WHERE POST_NUM_PK = ?";
-        Connection conn = null;
-        PreparedStatement pstmt = null;
+            Connection conn = null;
+            PreparedStatement pstmt = null;
+            try {
+                conn = Common.getConnection();
+                conn.setAutoCommit(false);  // 트랜잭션 시작
 
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
+                // 댓글 삭제
+                String deleteCommentsSQL = "DELETE FROM REPLY_TB WHERE POST_NUM_FK = ?";
+                pstmt = conn.prepareStatement(deleteCommentsSQL);
+                pstmt.setInt(1, postNum);
+                pstmt.executeUpdate();
+                Common.close(pstmt);
 
-            pstmt.setInt(1, postNum);
-            pstmt.executeUpdate();
+                // 좋아요 삭제
+                String deleteLikesSQL = "DELETE FROM LIKES_TB WHERE POST_NUM_FK = ?";
+                pstmt = conn.prepareStatement(deleteLikesSQL);
+                pstmt.setInt(1, postNum);
+                pstmt.executeUpdate();
+                Common.close(pstmt);
 
-            Common.close(pstmt);
-            Common.close(conn);
+                // 게시글 삭제
+                String deletePostSQL = "DELETE FROM POST_TB WHERE POST_NUM_PK = ?";
+                pstmt = conn.prepareStatement(deletePostSQL);
+                pstmt.setInt(1, postNum);
+                pstmt.executeUpdate();
+                Common.close(pstmt);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+                conn.commit();  // 트랜잭션 커밋
+
+                Common.close(conn);
+
+            } catch (Exception e) {
+                if (conn != null) {
+                    try {
+                        conn.rollback();  // 트랜잭션 롤백
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                e.printStackTrace();
+            }
         }
-    }
 
 
-    // ✨게시글 조회수 증가
+
+        // ✨게시글 조회수 증가
     public int increaseViews(int postNum) {
         String sql = "UPDATE POST_TB SET VIEW_COUNT = VIEW_COUNT + 1 WHERE POST_NUM_PK = ?";
 
