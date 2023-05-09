@@ -522,7 +522,27 @@ public class AccountDAO {
         }
     }
 
+    // ❗️❗️❗️❗️❗️❗️[5.9 추가] 프로필 사진 변경
+    public void updateMemberPfImg(String memberPfImgUrl, int memberNum) {
+        String sql = "UPDATE MEMBERS_TB SET PF_IMG = ?" +
+                " WHERE MEMBER_NUM_PK = ?";
 
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = Common.getConnection();
+
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, memberPfImgUrl);
+                pstmt.setInt(2, memberNum);
+                pstmt.executeUpdate();
+
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
 
