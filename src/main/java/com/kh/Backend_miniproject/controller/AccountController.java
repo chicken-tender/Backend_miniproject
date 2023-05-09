@@ -1,8 +1,6 @@
 package com.kh.Backend_miniproject.controller;
-import com.kh.Backend_miniproject.EmailService;
 import com.kh.Backend_miniproject.dao.AccountDAO;
 import com.kh.Backend_miniproject.vo.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -207,6 +205,16 @@ public class AccountController {
 //        adao.updateMemberTechStacks(memberNum, selectedStacks);
 
         adao.updateMemberInfo(memberNickname, memberPwd, memberJob, memberYear, memberNum);
+        return new ResponseEntity<>("True", HttpStatus.OK);
+    }
+
+    // ❗️❗️❗️❗️❗️❗️[5.9 추가]프로필 사진 변경
+    @PutMapping("/mypage/myprofile")
+    public ResponseEntity<String> fetchUpdateMemberPfImg(@RequestBody Map<String, Object> memberInfo) {
+        String memberPfImgUrl = (String) memberInfo.get("memberPfImgUrl");
+        int memberNum = (int) memberInfo.get("memberNum");
+        AccountDAO adao = new AccountDAO();
+        adao.updateMemberPfImg(memberPfImgUrl, memberNum);
         return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
