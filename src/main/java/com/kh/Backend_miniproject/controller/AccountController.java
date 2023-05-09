@@ -1,7 +1,8 @@
 package com.kh.Backend_miniproject.controller;
-import com.kh.Backend_miniproject.common.Common;
+import com.kh.Backend_miniproject.EmailService;
 import com.kh.Backend_miniproject.dao.AccountDAO;
 import com.kh.Backend_miniproject.vo.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,43 @@ public class AccountController {
 
     // 경미🔥POST : 회원가입시 생성된 회원번호를 이용해서 기술스택 저장
         // [5.7] ❗️등급&프로필사진 -> 디비에서 기본값 설정 완료
+//    @PostMapping("/signup")
+//    public ResponseEntity<Boolean> signUp(@RequestBody Map<String, Object> request) {
+//        boolean result = false;
+//        AccountDAO ado = new AccountDAO();
+//
+////        int gradeNum = (int) request.get("gradeNum");
+//        String email = (String) request.get("email");
+//        String pwd = (String) request.get("pwd");
+//        String nickname = (String) request.get("nickname");
+//        String job = (String) request.get("job");
+//        int year = (int) request.get("year");
+////        String pfImg = (String) request.get("pfImg");
+//
+//        result = ado.createMember(email, pwd, nickname, job, year);
+//
+//        if(result) {
+//            List<Map<String, Object>> techStacks = (List<Map<String, Object>>) request.get("techStacks");
+//            for (Map<String, Object> stack : techStacks) {
+//                MemberTechStackVO svo = new MemberTechStackVO();
+//                int stackNum = (int) stack.get("stackNum");
+//                svo.setStackNum(stackNum);
+//                result = ado.createMemberTechStack(email, svo.getStackNum());
+//                if (!result) {
+//                    return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+//                }
+//            }
+//        }
+//        return new ResponseEntity<>(result, HttpStatus.OK);
+//    }
+
+//    private final EmailService emailService;
+//
+//    @Autowired
+//    public AccountController(EmailService emailService) {
+//        this.emailService = emailService;
+//    }
+
     @PostMapping("/signup")
     public ResponseEntity<Boolean> signUp(@RequestBody Map<String, Object> request) {
         boolean result = false;
@@ -48,13 +86,17 @@ public class AccountController {
             List<Map<String, Object>> techStacks = (List<Map<String, Object>>) request.get("techStacks");
             for (Map<String, Object> stack : techStacks) {
                 MemberTechStackVO svo = new MemberTechStackVO();
-                int stackNum = (int)stack.get("stackNum");
+                int stackNum = (int) stack.get("stackNum");
                 svo.setStackNum(stackNum);
                 result = ado.createMemberTechStack(email, svo.getStackNum());
-                if(!result) {
+                if (!result) {
                     return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
                 }
             }
+//            String userEmail = email;
+//            String subject = "회원가입 완료 안내";
+//            String text = "회원가입이 성공적으로 완료되었습니다.";
+//            emailService.sendNotification(userEmail, subject, text);
         }
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -141,12 +183,31 @@ public class AccountController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // DELETE✅[5.6] 마이페이지 내 게시글 (다중)삭제
+    // DELETE✅[5.6] 마이페이지 내 댓글 (다중)삭제
     @DeleteMapping("/mypage/myreply")
     public ResponseEntity<Void> fetchDeleteMyReply(@RequestBody List<Integer> replyNums) {
         AccountDAO adao = new AccountDAO();
         adao.deleteMyReply(replyNums);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // POST⚙️ [5.8 추가] UPDATE 마이페이지 > 회원정보 수정
+    @PostMapping("/mypage/edit")
+    public ResponseEntity<String> fetchUpdateMemberInfo(@RequestBody Map<String, Object> memberInfo) {
+        String memberNickname = (String) memberInfo.get("memberNickname");
+        String memberPwd = (String) memberInfo.get("memberPwd");
+        String memberJob = (String) memberInfo.get("memberJob");
+        int memberYear = (int) memberInfo.get("memberYear");
+        int memberNum = (int) memberInfo.get("memberNum");
+//        List<Integer> selectedStacks = (List<Integer>) memberInfo.get("selectedStacks");
+
+        AccountDAO adao = new AccountDAO();
+
+        // 기술스택 수정
+//        adao.updateMemberTechStacks(memberNum, selectedStacks);
+
+        adao.updateMemberInfo(memberNickname, memberPwd, memberJob, memberYear, memberNum);
+        return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
 
