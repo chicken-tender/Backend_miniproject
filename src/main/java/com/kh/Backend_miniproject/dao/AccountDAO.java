@@ -544,8 +544,25 @@ public class AccountDAO {
         }
     }
 
+    // [5.9 추가] GET🔑 회원가입시 이메일 중복확인
+    public boolean getMemberByEmail(String memberEmail) {
+        boolean result = false;
+        String sql = "SELECT * FROM MEMBERS_TB WHERE EMAIL = ?";
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, memberEmail);
+            ResultSet resultSet = pstmt.executeQuery();
+            result = !resultSet.next();
 
+            Common.close(pstmt);
+            Common.close(conn);
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
 
     // 🔐회원 정보 변경 : 이메일
@@ -677,9 +694,11 @@ public class AccountDAO {
         }
     }
 
+    // [5.10] 사용 PUT🔑
+
     // 🔐회원 탈퇴시 isWithdrawn 변경
     public void updateMemberIsWithdrawn(String memberIsWithdrawn, int memberNum) {
-        String sql = "UPDATE MEMBERS_TB SET IS_WITHDRAWN = ? WHERE MEMBER_NUM_PK = ?";
+        String sql = "UPDATE MEMBERS_TB SET IS_WITHDRAWN = ?, NICKNAME = NULL, PF_IMG = NULL WHERE MEMBER_NUM_PK = ?";
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
