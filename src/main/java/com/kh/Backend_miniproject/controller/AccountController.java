@@ -218,6 +218,15 @@ public class AccountController {
         return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
+    // [5.9 추가] GET🔑 회원가입시 이메일 중복확인
+//    @GetMapping("/members")
+//    public ResponseEntity<Boolean> fetchCheckEmail(@RequestParam String memberEmail) {
+//        AccountDAO ado = new AccountDAO();
+//        boolean result = ado.getMemberByEmail(memberEmail);
+//
+//        return new ResponseEntity<>(result, HttpStatus.OK);
+//    }
+
 
     // POST⚙️ (마이페이지 > 내 정보 관리) 이메일 변경
     @PostMapping("/mypage/edit/email")
@@ -296,15 +305,16 @@ public class AccountController {
         return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
-    // POST ⚙️ 회원 탈퇴 : isWithdrawn 변경
-     @PostMapping("/members/is-withdrawn/{memberNum}")
-        public ResponseEntity<Integer> fetchUpdateMemberIsWithdrawn(@RequestBody Map<String, Object> memberInfo) {
-            String memberIsWithdrawn = (String)memberInfo.get("memberIsWithdrawn");
+    // [5.10] 사용 PUT🔑
+    // PUT ⚙️ 회원 탈퇴 : isWithdrawn 변경
+     @PutMapping("/members/is-withdrawn{memberNum}")
+        public ResponseEntity<String> fetchUpdateMemberIsWithdrawn(@RequestBody Map<String, Object> memberInfo) {
+            String memberIsWithdrawn = "Y";
             int memberNum = (int) memberInfo.get("memberNum");
 
             AccountDAO adao = new AccountDAO();
             adao.updateMemberIsWithdrawn(memberIsWithdrawn, memberNum);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>("True", HttpStatus.OK);
         }
 
 
