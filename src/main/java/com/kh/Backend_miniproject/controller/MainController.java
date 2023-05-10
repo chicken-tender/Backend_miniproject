@@ -135,4 +135,16 @@ public class MainController {
         }
         return new ResponseEntity<>(nickname, HttpStatus.OK);
     }
+
+    // ✅회원 직업(by memberNum) 요청에 따른 응답
+    @PostMapping("/memberNum/job")
+    public ResponseEntity<String> fetchJobByMemberNum(@RequestBody Map<String, Integer> memberNumData) {
+        int memberNum = memberNumData.get("memberNum");
+        MainDao mdao = new MainDao();
+        String job = mdao.getJobBymemberNum(memberNum);
+
+        if (job == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } return new ResponseEntity<>(job, HttpStatus.OK);
+    }
 }

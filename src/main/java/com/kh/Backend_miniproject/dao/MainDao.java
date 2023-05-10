@@ -345,4 +345,28 @@ public class MainDao {
         return list;
     }
 
+    // ✅회원 직업 get
+    public String getJobBymemberNum(int memberNum) {
+        String job = null;
+        String sql = "SELECT JOB FROM MEMBERS_TB WHERE MEMBER_NUM_PK = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, memberNum);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                job = rs.getString("JOB");
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return job;
+    }
+
 }
