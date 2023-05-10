@@ -49,8 +49,7 @@ public class ChattingController {
         String createdAtStr = (String) data.get("createdAt");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         ZonedDateTime createdAtZdt = ZonedDateTime.parse(createdAtStr, formatter);
-        ZonedDateTime utcCreatedAt = createdAtZdt.withZoneSameInstant(ZoneId.of("UTC"));
-        Timestamp createdAt = Timestamp.from(utcCreatedAt.toInstant());
+        Timestamp createdAt = Timestamp.from(createdAtZdt.toInstant());
         Character isRead = ((String) data.get("isRead")).charAt(0);
         String imgUrl = (String) data.get("imgUrl");
 
