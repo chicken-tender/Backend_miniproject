@@ -142,6 +142,32 @@ public class AccountEmailService {
     }
 
 
+    public void sendEmailWithTempPwd(String to, String tempPwd) throws Exception {
+        MimeMessage message = createTempPwdMessage(to, tempPwd);
+        emailSender.send(message);
+    }
+    private MimeMessage createTempPwdMessage(String to, String tempPwd)throws Exception{
+        MimeMessage message = emailSender.createMimeMessage();
+
+        String subject = "개발러스 임시 비밀번호";
+        String msg="";
+        msg += "<h2>개발러스 임시 비밀번호 입니다.</h2>";
+        msg += "<p>보안을 위해 로그인 후 비밀번호를 변경해주세요 제발! 부탁! 소원! </p>";
+        msg += "<h1>임시비밀번호: " + tempPwd + "</h1>";
+        msg += "<h3>개발러스</h3>";
+        String content = "<h1>이메일 인증 코드: " + tempPwd + "</h1>";
+
+        message.addRecipients(MimeMessage.RecipientType.TO, to); // 보내는 대상
+        message.setSubject(subject); // 제목
+        message.setText(msg, "utf-8", "html"); // 내용
+        message.setFrom(new InternetAddress(email, "개발러스")); // 보내는 사람
+
+
+        return message;
+    }
+
+
+
     private MimeMessage createMessages(String to)throws Exception{
         logger.info("받는 사용자 이메일 :" + to);
         logger.info("인증 번호: " + ePw);
