@@ -48,10 +48,10 @@ public class AccountDAO {
     // 👤(회원가입) 기본 정보 저장
     // 🔥INSERT 문은 프론트엔드에게 성공여부만 알려주면 되기 때문에 return 타입 boolean으로 하면 됨
         // [5.7] ❗️등급&프로필사진 -> 디비에서 기본값 설정 완료
-    public boolean createMember(String email, String password, String nickName, String job, int year) {
+    public boolean createMember(String email, String password, String nickName, String job, int year, String authKey) {
         int result = 0;
-        String sql = "INSERT INTO MEMBERS_TB (MEMBER_NUM_PK, EMAIL, PWD, NICKNAME, JOB, YEAR)" +
-                " VALUES (seq_MEMBER_NUM.NEXTVAL, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO MEMBERS_TB (MEMBER_NUM_PK, EMAIL, PWD, NICKNAME, JOB, YEAR, AUTH_KEY)" +
+                " VALUES (seq_MEMBER_NUM.NEXTVAL, ?, ?, ?, ?, ?, ?)";
         try {
             conn = Common.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -61,6 +61,8 @@ public class AccountDAO {
             pstmt.setString(3, nickName);
             pstmt.setString(4, job);
             pstmt.setInt(5, year);
+            pstmt.setString(6, authKey);
+
 //            pstmt.setString(7, pfImg);
             result = pstmt.executeUpdate();
 
@@ -522,7 +524,7 @@ public class AccountDAO {
         }
     }
 
-    // ❗️❗️❗️❗️❗️❗️[5.9 추가] 프로필 사진 변경
+    // [5.9 추가] 프로필 사진 변경
     public void updateMemberPfImg(String memberPfImgUrl, int memberNum) {
         String sql = "UPDATE MEMBERS_TB SET PF_IMG = ?" +
                 " WHERE MEMBER_NUM_PK = ?";
@@ -564,90 +566,38 @@ public class AccountDAO {
         return result;
     }
 
-
-    // 🔐회원 정보 변경 : 이메일
-    public void updateMemberEmail(String memberEmail, int memberNum) {
-        String sql = "UPDATE MEMBERS_TB SET EMAIL = ?" +
-                " WHERE MEMBER_NUM_PK = ?";
+    // [5.11 추가] POST🔑 이메일로 회원가입 인증키일치여부 확인
+    public boolean isMemberEmailAuth(String memberEmail, String memberAuthKey) {
+        String sql = "SELECT * FROM MEMBERS_TB" +
+                " WHERE EMAIL = ? AND AUTH_KEY = ?";
         try {
             conn = Common.getConnection();
-        if (memberEmail != null) {
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, memberEmail);
-            pstmt.setInt(2, memberNum);
+            pstmt.setString(2, memberAuthKey);
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                return true;
+            }
+        } catch(Exception e) {
+            e.printStackTrace();;
+        } finally {
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+        }
+        return false;
+    }
+
+    // [5.11 추가] PUT🔑 인증키 일치하면 isActive 바꾸기
+    public void updateMemberStatus(String memberAuthKey) {
+        String sql = "UPDATE MEMBERS_TB SET IS_ACTIVE = 'Y', AUTH_KEY = NULL  WHERE AUTH_KEY  = ?";
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, memberAuthKey);
             pstmt.executeUpdate();
-        }
-            Common.close(pstmt);
-            Common.close(conn);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // 🔐회원 정보 변경 : 비밀번호
-    public void updateMemberPassword(String memberPwd, int memberNum) {
-        String sql = "UPDATE MEMBERS_TB SET PWD = ?" +
-                " WHERE MEMBER_NUM_PK = ?";
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, memberPwd);
-            pstmt.setInt(2, memberNum);
-            pstmt.execute();
-
-            Common.close(pstmt);
-            Common.close(conn);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // 🔐회원 정보 변경 : 닉네임
-    public void updateMemberNickname(String memberNickname, int memberNum) {
-        String sql = "UPDATE MEMBERS_TB SET NICKNAME = ?" +
-                " WHERE MEMBER_NUM_PK = ?";
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, memberNickname);
-            pstmt.setInt(2, memberNum);
-            pstmt.execute();
-
-            Common.close(pstmt);
-            Common.close(conn);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // 🔐회원 정보 변경 : 직업
-    public void updateMemberJob(String memberJob, int memberNum) {
-        String sql = "UPDATE MEMBERS_TB SET JOB = ?" +
-                " WHERE MEMBER_NUM_PK = ?";
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, memberJob);
-            pstmt.setInt(2, memberNum);
-            pstmt.execute();
-
-            Common.close(pstmt);
-            Common.close(conn);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // 🔐회원 정보 변경 : 연차
-    public void updateMemberYear(int memberYear, int memberNum) {
-        String sql = "UPDATE MEMBERS_TB SET YEAR = ?" +
-                " WHERE MEMBER_NUM_PK = ?";
-        try {
-            conn = Common.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, memberYear);
-            pstmt.setInt(2, memberNum);
-            pstmt.execute();
 
             Common.close(pstmt);
             Common.close(conn);

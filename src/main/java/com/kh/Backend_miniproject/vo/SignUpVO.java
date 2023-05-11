@@ -13,4 +13,5 @@ public class SignUpVO {
     private int year;
     private String pfImg;
     private List<MemberTechStackVO> techStacks;
+    private String authKey;
 }

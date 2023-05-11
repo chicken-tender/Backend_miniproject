@@ -1,6 +1,8 @@
 package com.kh.Backend_miniproject.controller;
+import com.kh.Backend_miniproject.AccountEmailService;
 import com.kh.Backend_miniproject.dao.AccountDAO;
 import com.kh.Backend_miniproject.vo.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,9 +10,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import static com.kh.Backend_miniproject.AccountEmailService.createKey;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class AccountController {
+    public AccountController(AccountEmailService emailService) {
+        this.emailService = emailService;
+    }
+
     // 📍 POST : 로그인 - 경미 테스트
     @PostMapping("/login")
     public ResponseEntity<Boolean> loginMember(@RequestBody Map<String, String> loginData) {
@@ -58,27 +66,25 @@ public class AccountController {
 //        return new ResponseEntity<>(result, HttpStatus.OK);
 //    }
 
-//    private final EmailService emailService;
-//
-//    @Autowired
-//    public AccountController(EmailService emailService) {
-//        this.emailService = emailService;
-//    }
 
+    @Autowired
+    private final AccountEmailService emailService;
     @PostMapping("/signup")
     public ResponseEntity<Boolean> signUp(@RequestBody Map<String, Object> request) {
         boolean result = false;
         AccountDAO ado = new AccountDAO();
 
-//        int gradeNum = (int) request.get("gradeNum");
         String email = (String) request.get("email");
         String pwd = (String) request.get("pwd");
         String nickname = (String) request.get("nickname");
         String job = (String) request.get("job");
         int year = (int) request.get("year");
-//        String pfImg = (String) request.get("pfImg");
 
-        result = ado.createMember(email, pwd, nickname, job, year);
+        // 인증 코드 생성
+        String authKey = createKey();
+
+        // 회원 생성 및 인증 코드 저장
+        result = ado.createMember(email, pwd, nickname, job, year, authKey);
 
         if(result) {
             List<Map<String, Object>> techStacks = (List<Map<String, Object>>) request.get("techStacks");
@@ -91,10 +97,13 @@ public class AccountController {
                     return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
                 }
             }
-//            String userEmail = email;
-//            String subject = "회원가입 완료 안내";
-//            String text = "회원가입이 성공적으로 완료되었습니다.";
-//            emailService.sendNotification(userEmail, subject, text);
+            try {
+                // 이메일 발송
+                emailService.sendEmailWithAuthCode(email, authKey);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -227,61 +236,28 @@ public class AccountController {
 //        return new ResponseEntity<>(result, HttpStatus.OK);
 //    }
 
-
-    // POST⚙️ (마이페이지 > 내 정보 관리) 이메일 변경
-    @PostMapping("/mypage/edit/email")
-    public ResponseEntity<String> fetchUpdateMemberEmail(@RequestBody Map<String, Object> memberInfo) {
+    // [5.11 추가] GET🔑 이메일로 회원가입 인증키 확인
+    @PostMapping("/signup/authkey")
+    public ResponseEntity<Boolean> checkMemberEmailAuth(@RequestBody Map<String, String> memberInfo) {
         String memberEmail = (String) memberInfo.get("memberEmail");
-        int memberNum = (int) memberInfo.get("memberNum");
-
+        String memberAuthKey = (String) memberInfo.get("memberAuthKey");
         AccountDAO adao = new AccountDAO();
-        adao.updateMemberEmail(memberEmail, memberNum);
+        boolean isAuth = adao.isMemberEmailAuth(memberEmail, memberAuthKey);
+
+        if(isAuth) {
+            adao.updateMemberStatus(memberAuthKey);
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+    }
+
+    @PutMapping("/signup" )
+    public ResponseEntity<String> updateMemberIsActive(@RequestBody Map<String, String> memberInfo) {
+        String memberAuthKey = (String) memberInfo.get("memberAuthKey");
+        AccountDAO adao = new AccountDAO();
+        adao.updateMemberStatus(memberAuthKey);;
         return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
-    // POST⚙️ (마이페이지 > 내 정보 관리) 비밀번호 변경
-    @PostMapping("/mypage/edit/password")
-    public ResponseEntity<String> fetchUpdateMemberPwd(@RequestBody Map<String, Object> memberInfo) {
-        String memberPwd = (String) memberInfo.get("memberPwd");
-        int memberNum = (int) memberInfo.get("memberNum");
-
-        AccountDAO adao = new AccountDAO();
-        adao.updateMemberPassword(memberPwd, memberNum);
-        return new ResponseEntity<>("True", HttpStatus.OK);
-    }
-
-    // POST⚙️ (마이페이지 > 내 정보 관리) 닉네임 변경
-    @PostMapping("/mypage/edit/nickname")
-    public ResponseEntity<String> fetchUpdateMemberNickname(@RequestBody Map<String, Object> memberInfo) {
-        String memberNickname = (String) memberInfo.get("memberNickname");
-        int memberNum = (int) memberInfo.get("memberNum");
-
-        AccountDAO adao = new AccountDAO();
-        adao.updateMemberNickname(memberNickname, memberNum);
-        return new ResponseEntity<>("True", HttpStatus.OK);
-    }
-
-    // POST⚙️ (마이페이지 > 내 정보 관리) 직업 변경
-    @PostMapping("/mypage/edit/job")
-    public ResponseEntity<String> fetchUpdateMemberJob(@RequestBody Map<String, Object> memberInfo) {
-        String memberJob = (String)memberInfo.get("memberJob");
-        int memberNum = (int) memberInfo.get("memberNum");
-
-        AccountDAO adao = new AccountDAO();
-        adao.updateMemberJob(memberJob, memberNum);
-        return new ResponseEntity<>("True", HttpStatus.OK);
-    }
-
-    // POST⚙️ (마이페이지 > 내 정보 관리) 연차 변경
-    @PostMapping("/mypage/edit/year")
-    public ResponseEntity<Integer> fetchUpdateMemberYear(@RequestBody Map<String, Object> memberInfo) {
-        int memberYear = (int)memberInfo.get("memberYear");
-        int memberNum = (int) memberInfo.get("memberNum");
-
-        AccountDAO adao = new AccountDAO();
-        adao.updateMemberYear(memberYear, memberNum);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
     // POST⚙️ (마이페이지 > 내 정보 관리) 기술 스택 추가
     @PostMapping("/mypage/add/{memberNum}/{techStackNum}")
