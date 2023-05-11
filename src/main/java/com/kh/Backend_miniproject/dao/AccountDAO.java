@@ -251,6 +251,25 @@ public class AccountDAO {
         return result;
     }
 
+
+    // [5.11] PUT 회원 비밀번호를 임시비밀번호로 변경
+    public void updateMemberPassword(String tempPwd, String memberEmail) {
+        String sql = "UPDATE MEMBERS_TB SET PWD = ?" +
+                " WHERE EMAIL = ?";
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, tempPwd);
+            pstmt.setString(2, memberEmail);
+            pstmt.execute();
+
+            Common.close(pstmt);
+            Common.close(conn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     // 🔐회원 정보 read
     public SignUpVO readMemberInfoByNumber(int memberNum) {
         SignUpVO vo = null;
@@ -644,7 +663,6 @@ public class AccountDAO {
         }
     }
 
-    // [5.10] 사용 PUT🔑
 
     // 🔐회원 탈퇴시 isWithdrawn 변경
     public void updateMemberIsWithdrawn(String memberIsWithdrawn, int memberNum) {

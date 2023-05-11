@@ -145,8 +145,26 @@ public class AccountController {
     // [5.3 추가] GET🔑 입력받은 닉네임&이메일로 회원 존재 여부 확인
     @GetMapping("/check/ismember")
     public ResponseEntity<Boolean> fetchIsMemberByNicknameAndEmail(@RequestParam String nickname, String email) {
+        boolean result = false;
         AccountDAO ado = new AccountDAO();
-        return new ResponseEntity<>(ado.getMemberByNicknameAndEmail(nickname, email), HttpStatus.OK);
+        result = ado.getMemberByNicknameAndEmail(nickname, email);
+
+        if(result) {
+            // 인증 코드 생성 -> 임시 비밀번호
+            String tempPwd = createKey();
+
+            // 임시비번 db에 저장
+            ado.updateMemberPassword(tempPwd, email);
+            try {
+                // 이메일 발송
+                emailService.sendEmailWithTempPwd(email, tempPwd);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 
