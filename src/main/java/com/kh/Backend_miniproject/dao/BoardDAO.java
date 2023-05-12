@@ -45,7 +45,7 @@ public class BoardDAO {
 
     // ✨일반 게시판 글 목록 (한 페이지당 8개씩)
     public List<PostVO> generalPostList(int boardNum, int pageNum) {
-        int numPerPage = 8; // 페이지 당 보여주는 항목 개수
+        int numPerPage = 9; // 페이지 당 보여주는 항목 개수
         List<PostVO> list = new ArrayList<>();
         int startRow = (pageNum - 1) * numPerPage + 1;
         int endRow = pageNum * numPerPage;
