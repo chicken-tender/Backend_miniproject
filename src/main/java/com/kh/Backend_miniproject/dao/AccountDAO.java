@@ -882,6 +882,7 @@ public class AccountDAO {
         return list;
     }
 
+    // [5.12] 회원 로그인시 계정 활성화상태 확인
     public String getMemberIsActive (String memberEmail) {
         String isActive = "";
         String sql = "SELECT IS_ACTIVE FROM MEMBERS_TB WHERE EMAIL = ?";
@@ -905,6 +906,7 @@ public class AccountDAO {
         return isActive;
     }
 
+    // [5.12] 회원 로그인시 탈퇴여부 확인
     public String getMemberIsWithdrawn (String memberEmail) {
         String isWithdrawn = "";
         String sql = "SELECT IS_WITHDRAWN FROM MEMBERS_TB WHERE EMAIL = ?";
