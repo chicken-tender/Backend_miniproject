@@ -16,5 +16,7 @@ public class MembersVO {
     private Date regDate;
     private String pfImg;
     private String isWithdrawn;
+    private String isActive;
+
 }
 

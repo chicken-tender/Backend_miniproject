@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.kh.Backend_miniproject.AccountEmailService.createKey;
 
@@ -332,6 +333,22 @@ public class AccountController {
         AccountDAO dao = new AccountDAO();
         List<TechStackVO> list = dao.getMemberTechStackByNum(memberNum);
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    // [5.12] 회원 로그인시 계정 활성화 확인
+    @GetMapping("/login/isactive")
+    public ResponseEntity<String> fetchMemberIsActive(@RequestParam String memberEmail) {
+        AccountDAO adao = new AccountDAO();
+        String isActive = adao.getMemberIsActive(memberEmail);
+        return new ResponseEntity<>(isActive, HttpStatus.OK);
+    }
+
+    // [5.12] 회원 로그인시 탈퇴여부 확인
+    @GetMapping("/login/iswithdrawn")
+    public ResponseEntity<String> fetchMemberIsWithdrawn(@RequestParam String memberEmail) {
+        AccountDAO adao = new AccountDAO();
+        String isWithdrawn = adao.getMemberIsWithdrawn(memberEmail);
+            return new ResponseEntity<>(isWithdrawn, HttpStatus.OK);
     }
 
 

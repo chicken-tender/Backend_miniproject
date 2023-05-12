@@ -882,5 +882,50 @@ public class AccountDAO {
         return list;
     }
 
+    public String getMemberIsActive (String memberEmail) {
+        String isActive = "";
+        String sql = "SELECT IS_ACTIVE FROM MEMBERS_TB WHERE EMAIL = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, memberEmail);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                isActive = rs.getString("IS_ACTIVE");
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return isActive;
+    }
+
+    public String getMemberIsWithdrawn (String memberEmail) {
+        String isWithdrawn = "";
+        String sql = "SELECT IS_WITHDRAWN FROM MEMBERS_TB WHERE EMAIL = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, memberEmail);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                isWithdrawn = rs.getString("IS_WITHDRAWN");
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return isWithdrawn;
+    }
 
 }
