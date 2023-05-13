@@ -125,13 +125,14 @@ public class AccountEmailService {
     private MimeMessage createEmailMessage(String to, String authCode) throws Exception {
         MimeMessage message = emailSender.createMimeMessage();
 
-        String subject = "개발러스 이메일 인증 코드";
+        String subject = "[개발러스] 이메일 인증 코드";
         String msg="";
-        msg += "<h2>이메일 인증</h2>";
-        msg += "<p>아래 인증 코드를 회원가입 창에 입력하세요.</p>";
-        msg += "<h1>이메일 인증 코드: " + authCode + "</h1>";
-        msg += "<h3>개발러스</h3>";
-        String content = "<h1>이메일 인증 코드: " + authCode + "</h1>";
+        msg += "<p>안녕하세요!</p>";
+        msg += "<p>개발러스의 일원이 되신 것을 환영합니다!</p>";
+        msg += "<p>아래 코드를 회원가입 창에 입력해 주세요.</p>";
+        msg += "<h3>이메일 인증 코드: " + authCode + "</h3>";
+        msg += "<p>개발러스에서 즐거운 시간 보내시기 바랍니다.</p>";
+
 
         message.addRecipients(MimeMessage.RecipientType.TO, to); // 보내는 대상
         message.setSubject(subject); // 제목
@@ -149,13 +150,14 @@ public class AccountEmailService {
     private MimeMessage createTempPwdMessage(String to, String tempPwd)throws Exception{
         MimeMessage message = emailSender.createMimeMessage();
 
-        String subject = "개발러스 임시 비밀번호";
+        String subject = "[개발러스] 임시 비밀번호";
         String msg="";
-        msg += "<h2>개발러스 임시 비밀번호 입니다.</h2>";
-        msg += "<p>보안을 위해 로그인 후 비밀번호를 변경해주세요 제발! 부탁! 소원! </p>";
-        msg += "<h1>임시비밀번호: " + tempPwd + "</h1>";
-        msg += "<h3>개발러스</h3>";
-        String content = "<h1>이메일 인증 코드: " + tempPwd + "</h1>";
+        msg += "<p>안녕하세요!</p>";
+        msg += "<p>요청하신 임시 비밀번호입니다.</p>";
+        msg += "<h3>임시 비밀번호: " + tempPwd + "</h3>";
+        msg += "<p>보안을 위해 로그인 후 비밀번호를 변경해 주세요.</p>";
+        msg += "<p>감사합니다.</p>";
+
 
         message.addRecipients(MimeMessage.RecipientType.TO, to); // 보내는 대상
         message.setSubject(subject); // 제목

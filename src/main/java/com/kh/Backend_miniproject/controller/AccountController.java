@@ -247,13 +247,13 @@ public class AccountController {
     }
 
     // [5.9 추가] GET🔑 회원가입시 이메일 중복확인
-//    @GetMapping("/members")
-//    public ResponseEntity<Boolean> fetchCheckEmail(@RequestParam String memberEmail) {
-//        AccountDAO ado = new AccountDAO();
-//        boolean result = ado.getMemberByEmail(memberEmail);
-//
-//        return new ResponseEntity<>(result, HttpStatus.OK);
-//    }
+    @GetMapping("/members")
+    public ResponseEntity<Boolean> fetchCheckEmail(@RequestParam String memberEmail) {
+        AccountDAO ado = new AccountDAO();
+        boolean result = ado.getMemberByEmail(memberEmail);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 
     // [5.11 추가] GET🔑 이메일로 회원가입 인증키 확인
     @PostMapping("/signup/authkey")
