@@ -6,20 +6,37 @@
 
 
 
-## 🚀 프로젝트 주요 기능
+## 🔥 프로젝트 주요 기능
 - PC, 모바일에 최적화된 반응형 미디어쿼리 적용
-- 각 회원별 기술 스택 매칭을 통한 1:1 채팅
-- 메인 페이지에서 각 게시판의 최신 게시글 확인 가능
-- 메인 페이지에서 글 작성을 많이한 회원 1~5위 실시간 확인 가능
-- 회원 프로필 사진 업로드 가능
-- 게시판 사진 업로드 기능
+- JWT(JSON Web Token)와 Spring Security 적용
+- 회원별 기술 스택 매칭을 통한 1:1 채팅
 - 내가 작성한 글 댓글 이메일 알림
 - 회원가입 이메일 인증
+- 회원 직업별 권한 설정
+
+### 메인 페이지
+- 글 작성 많이한 회원 1~5위 실시간 확인
+- 전체 게시글 검색
+- 게시판 주요 통계 확인
+- 최신 게시글 확인 및 바로 이동
+- HRDNet 오픈 API 적용
+
+### 게시판
+- 게시글과 댓글 작성, 읽기, 수정, 삭제
+- 각 게시판 게시글 검색
+- 사진 업로드
+- 게시글 추천
+
+### 마이페이지
+- 회원 프로필 사진 업로드
+- 내 정보 수정
+- 회원 탈퇴
+- 내가 작성한 글, 댓글 확인
 
 
 
 ## 🛢️ ERD (수정 예정)
-<img src="https://file.notion.so/f/s/676c39c4-d517-4878-bf02-7977aa633c21/Relational_2.png?id=b3349d67-50e4-4ea9-9260-0e030ca79631&table=block&spaceId=bdf8d538-0573-4e53-8871-08828a72d8e6&expirationTimestamp=1682728569084&signature=htjpGVgM193joJzsmZeNbdrHTLUljaelT4eXf9RL3Gc&downloadName=Relational_2.png" width="600"/>
+<img src="https://file.notion.so/f/s/d628c34c-296e-4cd5-b8b9-87e14787d85e/erd_table.png?id=4b10d0cf-7b1e-46c1-b75a-2fc17ecc8213&table=block&spaceId=bdf8d538-0573-4e53-8871-08828a72d8e6&expirationTimestamp=1684202850102&signature=hAP8e09IcdsJESzH5wqQuPwwZaRWWnP9QhWn0WxVNOs&downloadName=erd_table.png/>
 
 
 
@@ -27,7 +44,7 @@
 ### 🐢 양경미
 * 멘토 찾기(벡엔드 + 프론트엔드)
     - 1:1 채팅
-* 메인 페이지(백엔드 + 프론트엔드)
+* 메인 페이지, 로그인(백엔드 + 프론트엔드)
 * 이메일 알림
 
 ### 🐳 최지인
@@ -53,7 +70,7 @@
 - OS : MAC
 - IDE : VS Code, IntelliJ
 - Language : Java 11, Javascript ES6
-- Library : React
+- Library : React.js
 - Framework : Spring Boot
-- DB : Oracle
-- etc : WebSocket, Firebase
+- DB : Oracle 11
+- etc : Firebase
