@@ -5,8 +5,11 @@ import com.kh.Backend_miniproject.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -351,9 +354,19 @@ public class AccountController {
             return new ResponseEntity<>(isWithdrawn, HttpStatus.OK);
     }
 
+    // 🍎 마이페이지: 회원정보 조회 (등급아이콘, 총 게시글 수, 총 댓글 수)
+    @GetMapping("/mypage/userInfo")
+    public ResponseEntity<List<MyPageVO>> fetchMemberInfoByEmail() {
+        AccountDAO dao = new AccountDAO();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        List<MyPageVO> list = new ArrayList<>();
 
-
-
-
+        list = dao.getMemberInfoByEmail(username);
+        if (list == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
 }
 

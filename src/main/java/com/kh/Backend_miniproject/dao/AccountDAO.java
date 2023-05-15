@@ -931,4 +931,55 @@ public class AccountDAO {
         return isWithdrawn;
     }
 
+    // 🍎마이페이지: 회원정보 조회 (등급아이콘, 총 게시글 수, 총 댓글 수)
+    public List<MyPageVO> getMemberInfoByEmail(String email) {
+        List<MyPageVO> list = new ArrayList<>();
+
+        String sql = "SELECT m.PF_IMG, g.GRADE_ICON_URL, m.REG_DATE, m.NICKNAME, m.EMAIL, m.JOB, m.YEAR," +
+                "  (SELECT COUNT(p.MEMBER_NUM_FK) FROM POST_TB p WHERE p.MEMBER_NUM_FK = m.MEMBER_NUM_PK) AS mpc," +
+                " (SELECT COUNT(r.MEMBER_NUM_FK) FROM REPLY_TB r WHERE r.MEMBER_NUM_FK = m.MEMBER_NUM_PK) AS mrc" +
+                " FROM MEMBERS_TB m" +
+                " JOIN GRADE_TB g ON m.GRADE_NUM_FK = g.GRADE_NUM_PK" +
+                " WHERE m.EMAIL = ?";
+
+        try {
+            conn = Common.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, email);
+
+            rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                String pfImg = rs.getString("PF_IMG");
+                String gradeIconUrl = rs.getString("GRADE_ICON_URL");
+                Date regDate = rs.getDate("REG_DATE");
+                String nickname = rs.getString("NICKNAME");
+                String userEmail = rs.getString("EMAIL");
+                String job = rs.getString("JOB");
+                int year = rs.getInt("YEAR");
+                int myPostCount = rs.getInt("mpc");
+                int myReplyCount = rs.getInt("mrc");
+
+                MyPageVO vo = new MyPageVO();
+                vo.setPfImg(pfImg);
+                vo.setGradeIconUrl(gradeIconUrl);
+                vo.setRegDate(regDate);
+                vo.setNickname(nickname);
+                vo.setEmail(userEmail);
+                vo.setJob(job);
+                vo.setYear(year);
+                vo.setMyPostCount(myPostCount);
+                vo.setMyReplyCount(myReplyCount);
+                list.add(vo);
+            }
+            Common.close(rs);
+            Common.close(pstmt);
+            Common.close(conn);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
 }
