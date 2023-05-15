@@ -348,7 +348,7 @@ public class AccountDAO {
         List<MyPageVO> list = new ArrayList<>();
         String sql = "SELECT *" +
                 " FROM (" +
-                " SELECT p.POST_NUM_PK, r.REPLY_CONTENT, p.TITLE, b.BOARD_NAME, r.WRITE_DATE" +
+                " SELECT p.POST_NUM_PK, r.REPLY_NUM_PK, r.REPLY_CONTENT, p.TITLE, b.BOARD_NAME, r.WRITE_DATE" +
                 " FROM REPLY_TB r" +
                 " JOIN POST_TB p ON r.POST_NUM_FK = p.POST_NUM_PK" +
                 " JOIN BOARD_TB b ON p.BOARD_NUM_FK = b.BOARD_NUM_PK" +
@@ -367,6 +367,7 @@ public class AccountDAO {
             while (rs.next()) {
                 MyPageVO vo = new MyPageVO();
                 vo.setPostNum(rs.getInt("POST_NUM_PK"));
+                vo.setReplyNum(rs.getInt("REPLY_NUM_PK"));
                 vo.setReplyContent(rs.getString("REPLY_CONTENT"));
                 vo.setPostTitle(rs.getString("TITLE"));
                 vo.setBoardName(rs.getString("BOARD_NAME"));
