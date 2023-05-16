@@ -48,7 +48,7 @@ public class BoardController {
     public ResponseEntity<String> fetchMoveBestBoard() {
         BoardDAO dao = new BoardDAO();
         dao.moveToBestBoard();
-        return new ResponseEntity<>("TRUE", HttpStatus.OK);
+        return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
 
@@ -94,9 +94,9 @@ public class BoardController {
         BoardDAO dao = new BoardDAO();
         int result = dao.increaseViews(postNum);
         if (result > 0) {
-            return new ResponseEntity<>("TRUE", HttpStatus.OK);
+            return new ResponseEntity<>("True", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("FALSE", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("False", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -114,7 +114,7 @@ public class BoardController {
     public ResponseEntity<String> updatePost(@RequestBody PostVO post) {
         BoardDAO dao = new BoardDAO();
         dao.updatePost(post);
-        return new ResponseEntity<>("TRUE", HttpStatus.OK);
+        return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
 
@@ -123,7 +123,7 @@ public class BoardController {
     public ResponseEntity<String> fetchDeletePost(@PathVariable int postNum) {
         BoardDAO dao = new BoardDAO();
         dao.deletePost(postNum);
-        return new ResponseEntity<>("TRUE", HttpStatus.OK);
+        return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
 
@@ -135,18 +135,18 @@ public class BoardController {
         String replyContent = (String) data.get("replyContent");
         BoardDAO dao = new BoardDAO();
         dao.writeReply(postNum, memberNum, replyContent);
-        return new ResponseEntity<>("TRUE", HttpStatus.OK);
+        return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
     // ✏️ 댓글 수정
     @PutMapping("/reply")
     public ResponseEntity<String> updateReply(@RequestBody Map<String, Object> data) {
         int replyNum = (int) data.get("replyNum");
-        String replyContent = (String) data.get("ReplyContent");
+        String replyContent = (String) data.get("replyContent");
 
         BoardDAO dao = new BoardDAO();
         dao.updateReply(replyNum, replyContent);
-        return new ResponseEntity<>("TRUE", HttpStatus.OK);
+        return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
 
@@ -155,7 +155,7 @@ public class BoardController {
     public ResponseEntity<String> deleteReply(@RequestParam("replyNum") int replyNum) {
         BoardDAO dao = new BoardDAO();
         dao.deleteReply(replyNum);
-        return new ResponseEntity<>("TRUE", HttpStatus.OK);
+        return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
      // ❤ 추천 상태 반환
@@ -176,6 +176,8 @@ public class BoardController {
         boolean TRUE = dao.updateLikes(postNum, memberNum);
         return new ResponseEntity<>(TRUE, HttpStatus.OK);
     }
+
+
 
 
     // 게시판 별 게시물 수 조회
