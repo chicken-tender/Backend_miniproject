@@ -315,20 +315,6 @@ public class AccountController {
             return new ResponseEntity<>("True", HttpStatus.OK);
         }
 
-
-    // [5.5] 사용 GET🔑
-    // ✅ 마이페이지: 회원정보 조회 (등급아이콘, 총 게시글 수, 총 댓글 수)
-    @GetMapping("/mypage/myprofile")
-    public ResponseEntity<List<MyPageVO>> fetchMemberInfoByNum(@RequestParam int memberNum) {
-        AccountDAO dao = new AccountDAO();
-        List<MyPageVO> list = dao.getMemberInfoByNum(memberNum);
-        if (!list.isEmpty()) {
-            return new ResponseEntity<>(list, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-    }
-
     // [5.5] 사용 GET🔑
     // ✅ 마이페이지: 회원 기술 스택
     @GetMapping("/mypage/mytechstacks")
