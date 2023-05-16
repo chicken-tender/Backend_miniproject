@@ -48,7 +48,7 @@ public class BoardController {
     public ResponseEntity<String> fetchMoveBestBoard() {
         BoardDAO dao = new BoardDAO();
         dao.moveToBestBoard();
-        return new ResponseEntity<>("true", HttpStatus.OK);
+        return new ResponseEntity<>("True", HttpStatus.OK);
     }
 
 
@@ -94,9 +94,9 @@ public class BoardController {
         BoardDAO dao = new BoardDAO();
         int result = dao.increaseViews(postNum);
         if (result > 0) {
-            return new ResponseEntity<>("true", HttpStatus.OK);
+            return new ResponseEntity<>("True", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("false", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("False", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -142,7 +142,7 @@ public class BoardController {
     @PutMapping("/reply")
     public ResponseEntity<String> updateReply(@RequestBody Map<String, Object> data) {
         int replyNum = (int) data.get("replyNum");
-        String replyContent = (String) data.get("content");
+        String replyContent = (String) data.get("replyContent");
 
         BoardDAO dao = new BoardDAO();
         dao.updateReply(replyNum, replyContent);
